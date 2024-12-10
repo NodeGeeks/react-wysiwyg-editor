@@ -1,7 +1,8 @@
 # React WYSIWYG Editor
-
+---
+## !!UNDER DEVELOPMENT!!
 A feature-rich WYSIWYG (What You See Is What You Get) editor component for React applications with support for text formatting, templates, and variable bindings.
-
+___
 ## Features
 
 - 📝 Rich text editing with formatting options (bold, italic, underline)
