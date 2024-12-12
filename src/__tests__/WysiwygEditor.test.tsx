@@ -12,7 +12,7 @@ describe('WysiwygEditor', () => {
     render(
       <WysiwygEditor
         content={content}
-        onChange={() => {}}
+        onChange={() => {console.log("")}}
       />
     );
     const editor = screen.getByRole('textbox');
@@ -41,7 +41,7 @@ describe('WysiwygEditor', () => {
     render(
       <WysiwygEditor
         content={content}
-        onChange={() => {}}
+        onChange={() => {console.log("")}}
         bindings={bindings}
       />
     );

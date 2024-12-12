@@ -1,0 +1,8 @@
+example/
+scripts/
+src/
+.babelrc
+.eslintrc
+tsconfig.json
+jest.config.js
+*.test.*

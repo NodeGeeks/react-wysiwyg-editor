@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { TemplateSelector } from './components/TemplateSelector';
 import { Toolbar } from './components/Toolbar';
 import "./styles.module.css";
@@ -30,13 +30,13 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     });
   };
 
-  const [, setEditorContent] = useState(content);
-  const [history, setHistory] = useState<string[]>([content]);
-  const [historyIndex, setHistoryIndex] = useState(0);
-  const editorRef = useRef<HTMLDivElement>(null);
+  const [, setEditorContent] = React.useState(content);
+  const [history, setHistory] = React.useState<string[]>([content]);
+  const [historyIndex, setHistoryIndex] = React.useState(0);
+  const editorRef = React.useRef<HTMLDivElement>(null);
 
   // Set initial content
-  useEffect(() => {
+  React.useEffect(() => {
     if (editorRef.current) {
       const processedContent = processBindings(content);
       editorRef.current.innerHTML = processedContent;
@@ -45,7 +45,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   }, []);
 
   // Update content when content or bindings change
-  useEffect(() => {
+  React.useEffect(() => {
     if (editorRef.current) {
       const processedContent = processBindings(content);
       editorRef.current.innerHTML = processedContent;
@@ -142,7 +142,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
         onColor={handleColor}
         onLink={handleLink}
         onImage={handleImage}
-        onTemplate={() => {}}
+        onTemplate={() => {console.log("")}}
         onUndo={handleUndo}
         onRedo={handleRedo}
       />
