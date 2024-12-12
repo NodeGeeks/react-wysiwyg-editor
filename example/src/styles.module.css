@@ -1,0 +1,37 @@
+.nodegeeks-react-wysiwyg-editor {
+  border: 1px solid #ccc;
+  min-height: 200px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.wysiwyg-toolbar {
+  display: flex;
+  gap: 5px;
+  padding: 5px;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-bottom: none;
+}
+
+.wysiwyg-toolbar button {
+  padding: 5px 10px;
+  background: white;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.wysiwyg-toolbar button:hover {
+  background: #f0f0f0;
+}
+
+.wysiwyg-toolbar select,
+.wysiwyg-toolbar input {
+  padding: 5px;
+  border: 1px solid #ddd;
+}
+
+.wysiwyg-container {
+  display: flex;
+  flex-direction: column;
+}
