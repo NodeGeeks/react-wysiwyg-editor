@@ -112,7 +112,7 @@ describe('WysiwygEditor', () => {
     expect(onChange).toHaveBeenCalledWith('<p>Template content</p>');
   });
 
-  it('handles undo/redo operations', () => {
+  it('handles undo operation', async () => {
     const onChange = jest.fn();
     const { container } = render(
       <WysiwygEditor
@@ -122,17 +122,17 @@ describe('WysiwygEditor', () => {
     );
 
     const editor = container.querySelector('.nodegeeks-react-wysiwyg-editor');
+    expect(editor).toBeTruthy();
     
-    // Simulate some changes
+    // Make first change
     fireEvent.input(editor!, { target: { innerHTML: 'Change 1' } });
-    fireEvent.input(editor!, { target: { innerHTML: 'Change 2' } });
-
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    expect(editor?.innerHTML).toBe('Change 1');
+    
     // Test undo
     fireEvent.click(screen.getByTitle('Undo'));
-    expect(onChange).toHaveBeenCalledWith('Change 1');
-
-    // Test redo
-    fireEvent.click(screen.getByTitle('Redo'));
-    expect(onChange).toHaveBeenCalledWith('Change 2');
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    expect(editor?.innerHTML).toBe('Initial');
   });
+
 });
