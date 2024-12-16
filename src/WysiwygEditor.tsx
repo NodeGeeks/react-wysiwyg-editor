@@ -42,24 +42,58 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   const editorRef = React.useRef<HTMLDivElement>(null);
   const isUpdatingRef = React.useRef(false);
 
-  // Function to get current caret position
+  // Function to get current caret position including <br> elements
   const getCaretPosition = () => {
     const selection = document.getSelection();
-    if (!selection || !selection.rangeCount) return null;
-  
+    if (!selection || !selection.rangeCount || !editorRef.current) return null;
+
     const range = selection.getRangeAt(0);
-    if (!editorRef.current) return null;
-  
-    // Get the start position
     const preCaretRange = range.cloneRange();
     preCaretRange.selectNodeContents(editorRef.current);
     preCaretRange.setEnd(range.startContainer, range.startOffset);
-    const startPos = preCaretRange.toString().length;
-  
-    // Get the end position
-    preCaretRange.setEnd(range.endContainer, range.endOffset);
-    const endPos = preCaretRange.toString().length;
-    
+
+    const nodes = Array.from(editorRef.current.childNodes);
+    let startPos = 0;
+    let endPos = 0;
+    let hasStartContainer = false;
+
+    const countPosition = (node: Node): number => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return node.textContent?.length || 0;
+      } else if (node.nodeName === 'BR') {
+        return 1; // Count each <br> as one position
+      }
+      let length = 0;
+      node.childNodes.forEach(child => {
+        length += countPosition(child);
+      });
+      return length;
+    };
+
+    // Calculate positions including <br> elements
+    for (const node of nodes) {
+      if (!hasStartContainer) {
+        if (node.contains(range.startContainer)) {
+          hasStartContainer = true;
+          if (node === range.startContainer) {
+            startPos += range.startOffset;
+          } else {
+            startPos += countPosition(node);
+          }
+        } else {
+          startPos += countPosition(node);
+        }
+      }
+      if (node.contains(range.endContainer)) {
+        if (node === range.endContainer) {
+          endPos = startPos + (range.endOffset - range.startOffset);
+        } else {
+          endPos = startPos + countPosition(node);
+        }
+        break;
+      }
+    }
+
     return {
       isCollapsed: range.collapsed,
       start: startPos,
@@ -365,6 +399,54 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
           if (e.key === 'Tab') {
             e.preventDefault();
             document.execCommand('insertText', false, '\t');
+          }
+          // Handle Enter key to maintain cursor position
+          else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (editorRef.current) {
+              const selection = document.getSelection();
+              if (selection && selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                
+                // Handle any selected text first
+                if (!range.collapsed) {
+                  range.deleteContents();
+                }
+                
+                // Save position and insert line breaks
+                document.execCommand('insertHTML', false, '<br><br>');
+                
+                // Force refresh to ensure proper layout
+                const content = editorRef.current.innerHTML;
+                editorRef.current.innerHTML = content;
+                
+                // Move cursor to end of inserted breaks
+                const walker = document.createTreeWalker(
+                  editorRef.current,
+                  NodeFilter.SHOW_ELEMENT,
+                  {
+                    acceptNode: (node) => 
+                      node.nodeName === 'BR' ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
+                  }
+                );
+                
+                let lastBr: Node | null = null;
+                let node: Node | null;
+                while ((node = walker.nextNode())) {
+                  lastBr = node;
+                }
+                
+                if (lastBr) {
+                  range.setStartAfter(lastBr);
+                  range.setEndAfter(lastBr);
+                  selection.removeAllRanges();
+                  selection.addRange(range);
+                }
+                
+                // Trigger onChange
+                handleChange({ currentTarget: editorRef.current } as React.FormEvent<HTMLDivElement>);
+              }
+            }
           }
         }}
         suppressContentEditableWarning={true}
