@@ -2,7 +2,7 @@
 import React from 'react';
 import { TemplateSelector } from './components/TemplateSelector';
 import { Toolbar } from './components/Toolbar';
-import "./styles.module.css";
+import "./styles.css";
 
 interface Template {
   name: string;
@@ -277,6 +277,38 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
       }
     }
   };
+
+  const handleAlignLeft = () => {
+    execCommand('justifyLeft');
+  };
+
+  const handleAlignCenter = () => {
+    execCommand('justifyCenter');
+  };
+
+  const handleAlignRight = () => {
+    execCommand('justifyRight');
+  };
+
+  const handleBulletList = () => {
+    execCommand('insertUnorderedList');
+  };
+
+  const handleOrderedList = () => {
+    execCommand('insertOrderedList');
+  };
+
+  const handleIndent = () => {
+    execCommand('indent');
+  };
+
+  const handleOutdent = () => {
+    execCommand('outdent');
+  };
+
+  const handleFontFamily = (font: string) => {
+    execCommand('fontName', font);
+  };
   
   const handleTemplate = (template: Template) => {
     if (editorRef.current) {
@@ -302,12 +334,20 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
         onItalic={handleItalic}
         onUnderline={handleUnderline}
         onFontSize={handleFontSize}
+        onFontFamily={handleFontFamily}
         onColor={handleColor}
         onLink={handleLink}
         onImage={handleImage}
         onTemplate={() => {console.log("")}}
         onUndo={handleUndo}
         onRedo={handleRedo}
+        onAlignLeft={handleAlignLeft}
+        onAlignCenter={handleAlignCenter}
+        onAlignRight={handleAlignRight}
+        onBulletList={handleBulletList}
+        onOrderedList={handleOrderedList}
+        onIndent={handleIndent}
+        onOutdent={handleOutdent}
       />
       {templates.length > 0 && (
         <TemplateSelector

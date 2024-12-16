@@ -1,0 +1,115 @@
+.nodegeeks-react-wysiwyg-editor:focus {
+  outline: none;
+}
+
+.nodegeeks-react-wysiwyg-editor {
+  width: 100%;
+  min-height: 100px;
+  height: auto;
+  padding: 12px;
+  border: 1px solid #ccc !important;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  background-color: #fff;
+  resize: vertical;
+  overflow: auto;
+  box-sizing: border-box;
+  color: black;
+  text-align: initial;
+}
+
+.nodegeeks-react-wysiwyg-editor:focus {
+  outline: none;
+  border-color: #2684ff;
+  box-shadow: 0 0 0 1px #2684ff;
+}
+
+.nodegeeks-react-wysiwyg-editor:hover {
+  border-color: #b3b3b3;
+}
+
+
+.wysiwyg-container {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.wysiwyg-toolbar {
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  padding: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: #303030;
+}
+
+.toolbar-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 0 4px;
+  border-right: 1px solid #ddd;
+}
+
+.toolbar-group:last-child {
+  border-right: none;
+}
+
+.wysiwyg-toolbar button {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: #303030;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  transition: all 0.2s ease;
+}
+
+.wysiwyg-toolbar button:hover {
+  background-color: #f0f0f0;
+  border-color: #ccc;
+}
+
+.wysiwyg-toolbar button:active {
+  background-color: #e0e0e0;
+  border-color: #bbb;
+  transform: translateY(1px);
+}
+
+.wysiwyg-toolbar select {
+  padding: 6px;
+  color: #303030;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  min-width: 80px;
+}
+
+.wysiwyg-toolbar select:hover {
+  border-color: #ccc;
+}
+
+.wysiwyg-toolbar input[type="color"] {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.wysiwyg-toolbar input[type="color"]:hover {
+  border-color: #ccc;
+}

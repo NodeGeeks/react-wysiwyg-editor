@@ -92,11 +92,15 @@ const MyAdvancedEditor = () => {
 | bindings | Record<string, any> | No | Object containing variable bindings for template interpolation |
 | templates | Template[] | No | Array of template objects with name and content properties |
 
+## Special Thanks
+
+To the [Tabler Icons](https://tabler.io/) project, as these are the icons used.
+
 ## License
 
 MIT License
 
-Copyright (c) 2023 React WYSIWYG Editor
+Copyright (c) 2024 React WYSIWYG Editor
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

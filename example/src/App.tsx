@@ -1,8 +1,6 @@
-import { useState } from 'react'
-import { WysiwygEditor } from '../../src/WysiwygEditor'
-import './App.css'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState } from 'react';
+import { WysiwygEditor } from '../../src/WysiwygEditor';
+import './App.css';
 
 function App() {
   const [content, setContent] = useState('');
@@ -25,19 +23,12 @@ function App() {
   })
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
       <h1>NodeGeeks React WYSIWYG Editor</h1>
       <input value={bindings.name} onChange={(e)=>{
         setBindings({...bindings, name: e.target.value});
       }} />
-      {bindings.name}
+      <br />
+      <br />
       <WysiwygEditor
         content={content}
         onChange={setContent}
