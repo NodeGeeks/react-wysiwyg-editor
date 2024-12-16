@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { TemplateSelector } from './components/TemplateSelector';
 import { Toolbar } from './components/Toolbar';
@@ -29,8 +30,9 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   const processBindings = (text: string) => {
     if (!text) return '';
     return text.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
-      const value = bindings[key.trim()];
-      return value !== undefined ? value : match;
+      const trimmedKey = key.trim();
+      const value = bindings[trimmedKey];
+      return `<span class="template-binding" data-binding="${trimmedKey}">${value !== undefined ? value : match}</span>`;
     });
   };
 
@@ -137,7 +139,20 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
       editorRef.current.innerHTML = processedContent;
       setEditorContent(content);
     }
-  }, [content, bindings]);
+  }, [content]);
+
+  // Handle binding updates
+  React.useEffect(() => {
+    if (!editorRef.current || isUpdatingRef.current) return;
+    const spans = editorRef.current.querySelectorAll('.template-binding');
+    spans.forEach((span) => {
+      const binding = span.getAttribute('data-binding');
+      if (binding) {
+        const value = bindings[binding];
+        span.textContent = value !== undefined ? value : `{{${binding}}}`;
+      }
+    });
+  }, [bindings]);
 
   const saveToHistory = (newContent: string) => {
     const newHistory = [...history.slice(0, historyIndex + 1), newContent];
