@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { WysiwygEditor } from '../../src/WysiwygEditor';
-import { DebugPanel } from '../../src/components/DebugPanel';
 import './App.css';
 
 function App() {
@@ -22,7 +21,6 @@ function App() {
     title: 'Monthly Newsletter',
     content: 'Here are the latest updates...'
   })
-  const [debug] = useState();
   return (
     <>
       <h1>NodeGeeks React WYSIWYG Editor</h1>
@@ -37,8 +35,6 @@ function App() {
         templates={templates}
         bindings={bindings}
       />
-      <DebugPanel selectionState={debug} />
-      {debug}
     </>
   )
 }
