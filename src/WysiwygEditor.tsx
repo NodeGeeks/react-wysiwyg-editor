@@ -106,59 +106,69 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   };
 
   // Function to set caret position
+  // Updated setCaretPosition function with fix for HTML nodes
   const setCaretPosition = (selection: SelectionState) => {
     setSelectionState(selection);
     if (!editorRef.current) return;
-  
+
     const domSelection = window.getSelection();
     if (!domSelection) return;
-  
-    let charCount = 0;
+
+    let currentPos = 0;
     let startNode: Node | null = null;
     let endNode: Node | null = null;
     let startOffset = 0;
     let endOffset = 0;
-  
-    const walk = document.createTreeWalker(
-      editorRef.current,
-      NodeFilter.SHOW_TEXT,
-      null
-    );
-  
-    // Find start and end positions
-    while ((startNode = walk.nextNode())) {
-      const nodeLength = startNode.textContent?.length || 0;
-      if (charCount + nodeLength >= selection.start) {
-        startOffset = selection.start - charCount;
-        endNode = startNode;
-        endOffset = selection.end - charCount;
-        
-        // If end position is in a different node, keep walking
-        if (charCount + nodeLength < selection.end) {
-          while ((endNode = walk.nextNode())) {
-            const length = endNode.textContent?.length || 0;
-            charCount += length;
-            if (charCount >= selection.end) {
-              endOffset = selection.end - (charCount - length);
-              break;
-            }
-          }
+
+    const findPosition = (targetPos: number, node: Node): { node: Node, offset: number } | null => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const length = node.textContent?.length || 0;
+        if (currentPos + length >= targetPos) {
+          return {
+            node: node,
+            offset: targetPos - currentPos
+          };
         }
-        break;
+        currentPos += length;
+        return null;
       }
-      charCount += nodeLength;
-    }
-  
-    if (startNode) {
-      try {
+
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        for (let i = 0; i < node.childNodes.length; i++) {
+          const result = findPosition(targetPos, node.childNodes[i]);
+          if (result) return result;
+        }
+      }
+
+      return null;
+    };
+
+    try {
+      // Find start position
+      const startResult = findPosition(selection.start, editorRef.current);
+      if (startResult) {
+        startNode = startResult.node;
+        startOffset = startResult.offset;
+      }
+
+      // Reset currentPos for end position calculation
+      currentPos = 0;
+      // Find end position
+      const endResult = findPosition(selection.end, editorRef.current);
+      if (endResult) {
+        endNode = endResult.node;
+        endOffset = endResult.offset;
+      }
+
+      if (startNode && endNode) {
         const range = document.createRange();
         range.setStart(startNode, startOffset);
-        range.setEnd(endNode || startNode, endOffset);
+        range.setEnd(endNode, endOffset);
         domSelection.removeAllRanges();
         domSelection.addRange(range);
-      } catch (e) {
-        console.warn('Failed to restore selection:', e);
       }
+    } catch (e) {
+      console.warn('Failed to restore selection:', e);
     }
   };
 
