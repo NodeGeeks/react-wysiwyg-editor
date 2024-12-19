@@ -96,6 +96,9 @@ const MyAdvancedEditor = () => {
 
 To the [Tabler Icons](https://tabler.io/) project, as these are the icons used.
 
+## Developers take on execCommond
+So i spent a ton of time attempting to write some DOM Manipulation techniques to replace the so called "depricated" `execCommand`. Simply because it says its depricated. However after reading a few articles, [this being the main one](https://stackoverflow.com/questions/12251629/is-there-something-better-than-document-execcommand) and a GitHub comments based around [whatwg/html](https://github.com/whatwg/html/pull/7064) repo. With that said i decided to stick with the execCommand usage for the simpler rich text features. However just as other more sophisticated WYSIWYG Editors this should be an end goal. Looking forward to the day i can remove this section from the README ✨ 
+
 ## License
 
 MIT License
