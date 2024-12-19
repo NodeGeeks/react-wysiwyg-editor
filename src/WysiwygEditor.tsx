@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
+import { DebugPanel } from './components/DebugPanel';
 import { TemplateSelector } from './components/TemplateSelector';
 import { Toolbar } from './components/Toolbar';
 import "./styles.css";
@@ -14,6 +15,7 @@ interface WysiwygEditorProps {
   onChange: (content: string) => void;
   bindings?: Record<string, any>;
   templates?: Template[];
+  debug?: boolean;
 }
 interface SelectionState {
   isCollapsed: boolean;
@@ -25,7 +27,8 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   content,
   onChange,
   bindings = {},
-  templates = []
+  templates = [],
+  debug = false
 }) => {
   const processBindings = (text: string) => {
     if (!text) return '';
@@ -39,6 +42,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   const [, setEditorContent] = React.useState(content);
   const [history, setHistory] = React.useState<string[]>([content]);
   const [historyIndex, setHistoryIndex] = React.useState(0);
+  const [selectionState, setSelectionState] = React.useState<SelectionState | null>(null);
   const editorRef = React.useRef<HTMLDivElement>(null);
   const isUpdatingRef = React.useRef(false);
 
@@ -103,6 +107,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
 
   // Function to set caret position
   const setCaretPosition = (selection: SelectionState) => {
+    setSelectionState(selection);
     if (!editorRef.current) return;
   
     const domSelection = window.getSelection();
@@ -163,6 +168,19 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
       const processedContent = processBindings(content);
       editorRef.current.innerHTML = processedContent;
       setEditorContent(content);
+    }
+    if (debug) {
+      const handleSelectionChange = () => {
+        const newSelectionState = getCaretPosition();
+          if (newSelectionState) {
+              setSelectionState(newSelectionState);
+          }
+      };
+
+      document.addEventListener('selectionchange', handleSelectionChange);
+      return () => {
+          document.removeEventListener('selectionchange', handleSelectionChange);
+      };
     }
   }, []);
 
@@ -454,6 +472,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
         aria-label="Rich text editor"
         spellCheck
       />
+      {debug ? <DebugPanel selectionState={selectionState} /> : null}
     </div>
   );
 };

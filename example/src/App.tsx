@@ -34,6 +34,7 @@ function App() {
         onChange={setContent}
         templates={templates}
         bindings={bindings}
+        debug={true}
       />
     </>
   )
