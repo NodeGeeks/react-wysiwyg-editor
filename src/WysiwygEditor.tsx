@@ -21,6 +21,7 @@ interface SelectionState {
   isCollapsed: boolean;
   start: number;
   end: number;
+  length: number;
 }
 
 export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
@@ -101,7 +102,8 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     return {
       isCollapsed: range.collapsed,
       start: startPos,
-      end: endPos
+      end: endPos,
+      length: endPos - startPos
     };
   };
 
