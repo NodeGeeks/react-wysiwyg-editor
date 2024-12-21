@@ -63,7 +63,7 @@ describe('WysiwygEditor Enter Key Behavior', () => {
     await new Promise(resolve => requestAnimationFrame(resolve));
     
     // Verify line break was added
-    expect(editor!.innerHTML.includes('<br><br>')).toBe(true);
+    expect(editor!.innerHTML.includes('<br>')).toBe(true);
     
     // Immediately type after the line break
     fireEvent.input(editor!, { target: { innerHTML: 'First line<br><br>immediately typing' } });

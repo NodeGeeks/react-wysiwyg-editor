@@ -444,7 +444,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
                 }
                 
                 // Save position and insert line breaks
-                document.execCommand('insertHTML', false, '<br><br>');
+                document.execCommand('insertHTML', false, '<br>');
                 
                 // Force refresh to ensure proper layout
                 const content = editorRef.current.innerHTML;
