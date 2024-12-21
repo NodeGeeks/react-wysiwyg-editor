@@ -1,0 +1,40 @@
+.table-popover {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-popover-row {
+  display: flex;
+}
+
+.table-popover-cell {
+  width: 20px;
+  height: 20px;
+  background: #eee;
+  border: 1px solid #ccc;
+  margin: 1px;
+  cursor: pointer;
+}
+
+.table-popover-cell.highlighted {
+  background: #cce5ff;
+  border-color: #007bff;
+}
+
+.table-styles {
+  margin-top: 10px;
+}
+
+.table-styles label {
+  display: block;
+  margin-bottom: 5px;
+}

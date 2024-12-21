@@ -4,6 +4,7 @@ import { DebugPanel } from './components/DebugPanel';
 import { TemplateSelector } from './components/TemplateSelector';
 import { Toolbar } from './components/Toolbar';
 import "./styles.css";
+import { TableStyles } from './types/TableStyles';
 
 interface Template {
   name: string;
@@ -46,6 +47,27 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   const [selectionState, setSelectionState] = React.useState<SelectionState | null>(null);
   const editorRef = React.useRef<HTMLDivElement>(null);
   const isUpdatingRef = React.useRef(false);
+  const [storedSelection, setStoredSelection] = React.useState<Range | null>(null);
+  const [showTablePopover, setShowTablePopover] = React.useState(false);
+  const tablePopoverRef = React.useRef<HTMLDivElement>(null);
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      editorRef.current &&
+      !editorRef.current.contains(event.target as Node) &&
+      tablePopoverRef.current &&
+      !tablePopoverRef.current.contains(event.target as Node)
+    ) {
+      setShowTablePopover(false);
+    }
+  };
+
+  React.useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Function to get current caret position including <br> elements
   const getCaretPosition = () => {
@@ -391,6 +413,52 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     }
   };
 
+  const handleTable = (rows: number, columns: number, styles: TableStyles) => {
+    if (!editorRef.current || !storedSelection) return;
+
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    selection.removeAllRanges();
+    selection.addRange(storedSelection);
+
+    let tableHTML = `<table style="border-color: ${styles.borderColor}; border-collapse: collapse;">`;
+    for (let i = 0; i < rows; i++) {
+      tableHTML += '<tr>';
+      for (let j = 0; j < columns; j++) {
+        tableHTML += `<td style="border: 1px solid ${styles.borderColor}; padding: ${styles.cellPadding};">&nbsp;</td>`;
+      }
+      tableHTML += '</tr>';
+    }
+    tableHTML += '</table>';
+
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = tableHTML;
+    const fragment = document.createDocumentFragment();
+    let node;
+    while ((node = tempDiv.firstChild)) {
+      fragment.appendChild(node);
+    }
+
+    storedSelection.deleteContents();
+    storedSelection.insertNode(fragment);
+
+    // Move the caret after the inserted table
+    const lastChild = fragment.lastChild;
+    if (lastChild) {
+      storedSelection.setStartAfter(lastChild);
+      storedSelection.setEndAfter(lastChild);
+      selection.removeAllRanges();
+      selection.addRange(storedSelection);
+    }
+
+    // Update the content and history
+    const newContent = editorRef.current.innerHTML;
+    setEditorContent(newContent);
+    onChange(newContent);
+    saveToHistory(newContent);
+  };
+
   return (
     <div className="wysiwyg-container">
       <Toolbar
@@ -412,6 +480,17 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
         onOrderedList={handleOrderedList}
         onIndent={handleIndent}
         onOutdent={handleOutdent}
+        onTable={handleTable}
+        onShowTablePopover={() => {
+          const selection = window.getSelection();
+          if (selection && selection.rangeCount > 0) {
+            setStoredSelection(selection.getRangeAt(0));
+          }
+          setShowTablePopover(true);
+        }}
+        showTablePopover={showTablePopover}
+        setShowTablePopover={setShowTablePopover}
+        tablePopoverRef={tablePopoverRef}
       />
       {templates.length > 0 && (
         <TemplateSelector

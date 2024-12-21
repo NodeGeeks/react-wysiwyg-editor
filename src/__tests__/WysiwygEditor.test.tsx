@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import '@testing-library/jest-dom';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React, { useState } from 'react';
 import { WysiwygEditor } from '../WysiwygEditor';
@@ -48,7 +49,7 @@ describe('WysiwygEditor', () => {
     );
     
     const editor = screen.getByRole('textbox');
-    expect(editor.innerHTML).toBe('Hello <span class=\"template-binding\" data-binding=\"name\">World</span>!');
+    expect(editor.innerHTML).toBe('Hello <span class="template-binding" data-binding="name">World</span>!');
   });
 
   it('updates binding correctly', () => {
@@ -81,6 +82,7 @@ describe('WysiwygEditor', () => {
     
     expect(editor.innerHTML).toBe('Hello <span class="template-binding" data-binding="name">NodeGeeks</span>!');
   });
+
   it('applies text formatting commands', () => {
     const onChange = jest.fn();
     render(
@@ -164,6 +166,60 @@ describe('WysiwygEditor', () => {
     fireEvent.click(screen.getByTitle('Undo'));
     await new Promise(resolve => requestAnimationFrame(resolve));
     expect(editor?.innerHTML).toBe('Initial');
+  });
+
+  it('should insert table at current selection in editor', async () => {
+    const onChange = jest.fn();
+    render(
+      <WysiwygEditor
+        content="Initial content"
+        onChange={onChange}
+      />
+    );
+
+    const editor = screen.getByRole('textbox');
+    editor.focus();
+    
+    // Set cursor position
+    const range = document.createRange();
+    const selection = window.getSelection();
+    range.setStart(editor.childNodes[0], 8); // Position after "Initial "
+    range.setEnd(editor.childNodes[0], 8);
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+
+    // Open table popover
+    fireEvent.click(screen.getByTitle('Insert Table'));
+
+    // Select table size and insert
+    const tableCell = screen.getByLabelText('1x1');
+    fireEvent.mouseOver(tableCell);
+    fireEvent.click(tableCell);
+
+    // Verify table insertion
+    await new Promise(resolve => setTimeout(resolve, 100)); // Wait for state updates
+    expect(editor.innerHTML).toContain('<table');
+    expect(editor.innerHTML).toContain('<td');
+  });
+
+  it('should close TablePopover when clicking outside', async () => {
+    render(
+      <WysiwygEditor
+        content="Initial content"
+        onChange={() => {console.log("")}}
+      />
+    );
+
+    // Open table popover
+    fireEvent.click(screen.getByTitle('Insert Table'));
+    expect(screen.getByText('Border Color:')).toBeInTheDocument();
+
+    // Click outside the popover
+    fireEvent.mouseDown(document);
+    await new Promise(resolve => setTimeout(resolve, 100)); // Wait for state updates
+
+    // Verify popover is closed
+    expect(screen.queryByText('Border Color:')).not.toBeInTheDocument();
   });
 
 });
