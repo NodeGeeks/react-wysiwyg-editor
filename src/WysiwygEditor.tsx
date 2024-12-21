@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { DebugPanel } from './components/DebugPanel';
+import { TableDialog } from './components/TableDialog';
 import { TemplateSelector } from './components/TemplateSelector';
 import { Toolbar } from './components/Toolbar';
 import "./styles.css";
@@ -44,6 +45,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   const [history, setHistory] = React.useState<string[]>([content]);
   const [historyIndex, setHistoryIndex] = React.useState(0);
   const [selectionState, setSelectionState] = React.useState<SelectionState | null>(null);
+  const [isTableDialogOpen, setIsTableDialogOpen] = React.useState(false);
   const editorRef = React.useRef<HTMLDivElement>(null);
   const isUpdatingRef = React.useRef(false);
 
@@ -374,6 +376,39 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     execCommand('fontName', font);
   };
   
+  const handleTableSelect = (rows: number, cols: number) => {
+    if (!editorRef.current) return;
+    
+    // Create table HTML structure
+    let tableHTML = '<table style="border-collapse: collapse; width: 100%;">\n';
+    for (let i = 0; i < rows; i++) {
+      tableHTML += '  <tr>\n';
+      for (let j = 0; j < cols; j++) {
+        tableHTML += '    <td style="border: 1px solid #dddddd; padding: 8px;">&nbsp;</td>\n';
+      }
+      tableHTML += '  </tr>\n';
+    }
+    tableHTML += '</table>';
+  
+    // Insert the table at current cursor position
+    const selectionState = getCaretPosition();
+    document.execCommand('insertHTML', false, tableHTML);
+    setIsTableDialogOpen(false);
+  
+    // Update content and save to history
+    const newContent = editorRef.current.innerHTML;
+    setEditorContent(newContent);
+    onChange(newContent);
+    saveToHistory(newContent);
+  
+    // Restore selection after table insertion
+    requestAnimationFrame(() => {
+      if (selectionState) {
+        setCaretPosition(selectionState);
+      }
+    });
+  };
+
   const handleTemplate = (template: Template) => {
     if (editorRef.current) {
       const selectionState = getCaretPosition();
@@ -393,6 +428,11 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
 
   return (
     <div className="wysiwyg-container">
+      <TableDialog
+        isOpen={isTableDialogOpen}
+        onClose={() => setIsTableDialogOpen(false)}
+        onSelect={handleTableSelect}
+      />
       <Toolbar
         onBold={handleBold}
         onItalic={handleItalic}
@@ -412,6 +452,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
         onOrderedList={handleOrderedList}
         onIndent={handleIndent}
         onOutdent={handleOutdent}
+        setIsTableDialogOpen={setIsTableDialogOpen}
       />
       {templates.length > 0 && (
         <TemplateSelector
