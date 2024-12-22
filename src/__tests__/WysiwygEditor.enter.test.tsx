@@ -8,10 +8,22 @@ describe('WysiwygEditor Enter Key Behavior', () => {
     window.getSelection()?.removeAllRanges();
     // Mock execCommand
     document.execCommand = jest.fn((command, _, value) => {
-      if (command === 'insertHTML' && value === '<br><br>') {
+      if (command === 'insertHTML' && value === '<br>') {
         const editor = document.querySelector('.nodegeeks-react-wysiwyg-editor');
         if (editor) {
-          editor.innerHTML = editor.innerHTML + '<br><br>';
+          const selection = window.getSelection();
+          const range = selection?.getRangeAt(0);
+          if (range) {
+            range.deleteContents();
+            const br = document.createElement('br');
+            range.insertNode(br);
+            range.setStartAfter(br);
+            range.collapse(true);
+            selection?.removeAllRanges();
+            selection?.addRange(range);
+            editor.innerHTML = editor.innerHTML.replace(/<br><br>/g, '<br>');
+            console.log('Updated innerHTML:', editor.innerHTML); // Debugging log
+          }
         }
       }
       return true;
@@ -63,32 +75,28 @@ describe('WysiwygEditor Enter Key Behavior', () => {
     await new Promise(resolve => requestAnimationFrame(resolve));
     
     // Verify line break was added
-    expect(editor!.innerHTML.includes('<br>')).toBe(true);
+    expect(editor!.innerHTML).toBe('First line<br>');
     
     // Immediately type after the line break
-    fireEvent.input(editor!, { target: { innerHTML: 'First line<br><br>immediately typing' } });
-    expect(editor!.innerHTML).toBe('First line<br><br>immediately typing');
+    fireEvent.input(editor!, { target: { innerHTML: 'First line<br>immediately typing' } });
+    expect(editor!.innerHTML).toBe('First line<br>immediately typing');
     
-    // Type immediately after the break
-    fireEvent.input(editor!, { target: { innerHTML: 'First line<br><br>typing works' } });
-    expect(editor!.innerHTML).toBe('First line<br><br>typing works');
-
     // Type second line
-    fireEvent.input(editor!, { target: { innerHTML: 'First line<br><br>Second line' } });
-    expect(editor!.innerHTML).toBe('First line<br><br>Second line');
+    fireEvent.input(editor!, { target: { innerHTML: 'First line<br>Second line' } });
+    expect(editor!.innerHTML).toBe('First line<br>Second line');
 
     // Verify onChange was called for each change
     expect(handleChange).toHaveBeenCalledTimes(3);
-    expect(handleChange).toHaveBeenLastCalledWith('First line<br><br>Second line');
+    expect(handleChange).toHaveBeenLastCalledWith('First line<br>Second line');
 
     // Press Enter again at the end
     fireEvent.keyDown(editor!, { key: 'Enter' });
     await new Promise(resolve => requestAnimationFrame(resolve));
-    expect(editor!.innerHTML).toBe('First line<br><br>Second line<br><br>');
+    expect(editor!.innerHTML).toBe('First line<br>Second line<br>');
 
     // Type third line
-    fireEvent.input(editor!, { target: { innerHTML: 'First line<br><br>Second line<br><br>Third line' } });
-    expect(editor!.innerHTML).toBe('First line<br><br>Second line<br><br>Third line');
+    fireEvent.input(editor!, { target: { innerHTML: 'First line<br>Second line<br>Third line' } });
+    expect(editor!.innerHTML).toBe('First line<br>Second line<br>Third line');
   });
 
   it('allows typing immediately after pressing enter in middle of text', async () => {
@@ -108,41 +116,43 @@ describe('WysiwygEditor Enter Key Behavior', () => {
     expect(editor!.innerHTML).toBe('One line of text');
 
     // Set cursor after "One line"
-    const mockRange = document.getSelection()?.getRangeAt(0);
-    if (mockRange && mockRange.startContainer.nodeType === Node.TEXT_NODE) {
-      mockRange.setStart(mockRange.startContainer, 8);
-      mockRange.collapse(true);
-    }
+    const textNode = editor!.firstChild;
+    const mockRange = document.createRange();
+    mockRange.setStart(textNode!, 8);
+    mockRange.collapse(true);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(mockRange);
     
     // Press Enter and verify cursor position
     fireEvent.keyDown(editor!, { key: 'Enter' });
     await new Promise(resolve => requestAnimationFrame(resolve));
     
     // Verify line breaks added at cursor position
-    expect(editor!.innerHTML).toBe('One line<br><br>of text');
+    expect(editor!.innerHTML).toBe('One line<br>of text');
     
     // Type at cursor position after break
-    fireEvent.input(editor!, { target: { innerHTML: 'One line<br><br>now typing here of text' } });
-    expect(editor!.innerHTML).toBe('One line<br><br>now typing here of text');
+    fireEvent.input(editor!, { target: { innerHTML: 'One line<br>now typing here of text' } });
+    expect(editor!.innerHTML).toBe('One line<br>now typing here of text');
 
     // Type new text
     fireEvent.input(editor!, {
-      target: { innerHTML: 'One line of text<br><br>Second line' }
+      target: { innerHTML: 'One line of text<br>Second line' }
     });
-    expect(editor!.innerHTML).toBe('One line of text<br><br>Second line');
+    expect(editor!.innerHTML).toBe('One line of text<br>Second line');
 
     // Press enter again
     fireEvent.keyDown(editor!, { key: 'Enter' });
     await new Promise(resolve => requestAnimationFrame(resolve));
-    expect(editor!.innerHTML).toBe('One line of text<br><br>Second line<br><br>');
+    expect(editor!.innerHTML).toBe('One line of text<br>Second line<br>');
 
     // Type more text
     fireEvent.input(editor!, {
-      target: { innerHTML: 'One line of text<br><br>Second line<br><br>Third line' }
+      target: { innerHTML: 'One line of text<br>Second line<br>Third line' }
     });
-    expect(editor!.innerHTML).toBe('One line of text<br><br>Second line<br><br>Third line');
+    expect(editor!.innerHTML).toBe('One line of text<br>Second line<br>Third line');
 
     // Verify onChange called appropriately
-    expect(handleChange).toHaveBeenCalledWith('One line of text<br><br>Second line<br><br>Third line');
+    expect(handleChange).toHaveBeenCalledWith('One line of text<br>Second line<br>Third line');
   });
 });

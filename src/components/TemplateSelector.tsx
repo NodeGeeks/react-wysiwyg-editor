@@ -15,18 +15,16 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
   onSelectTemplate,
 }) => {
   return (
-    <select onChange={(e) => {
-      const template = templates.find(t => t.name === e.target.value);
-      if (template) {
-        onSelectTemplate(template);
-      }
-    }}>
-      <option value="">Select a template...</option>
+    <div className="template-selector">
       {templates.map((template) => (
-        <option key={template.name} value={template.name}>
+        <div
+          key={template.name}
+          className="template-item"
+          onClick={() => onSelectTemplate(template)}
+        >
           {template.name}
-        </option>
+        </div>
       ))}
-    </select>
+    </div>
   );
 };

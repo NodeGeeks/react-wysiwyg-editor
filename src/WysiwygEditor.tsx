@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { DebugPanel } from './components/DebugPanel';
-import { TemplateSelector } from './components/TemplateSelector';
 import { Toolbar } from './components/Toolbar';
 import "./styles.css";
 import { TableStyles } from './types/TableStyles';
 
-interface Template {
+export interface Template {
   name: string;
   content: string;
 }
@@ -460,7 +459,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   };
 
   return (
-    <div className="wysiwyg-container">
+    <div className="wysiwyg-container" style={{ position: 'relative' }}>
       <Toolbar
         onBold={handleBold}
         onItalic={handleItalic}
@@ -470,7 +469,6 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
         onColor={handleColor}
         onLink={handleLink}
         onImage={handleImage}
-        onTemplate={() => {console.log("")}}
         onUndo={handleUndo}
         onRedo={handleRedo}
         onAlignLeft={handleAlignLeft}
@@ -491,13 +489,9 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
         showTablePopover={showTablePopover}
         setShowTablePopover={setShowTablePopover}
         tablePopoverRef={tablePopoverRef}
+        templates={templates}
+        onSelectTemplate={handleTemplate}
       />
-      {templates.length > 0 && (
-        <TemplateSelector
-          templates={templates}
-          onSelectTemplate={handleTemplate}
-        />
-      )}
       <div
         ref={editorRef}
         className="nodegeeks-react-wysiwyg-editor"

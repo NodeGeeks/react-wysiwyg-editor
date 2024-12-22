@@ -115,7 +115,7 @@ describe('WysiwygEditor', () => {
     );
 
     // Test font size
-    const fontSelect = screen.getByRole('combobox');
+    const fontSelect = screen.getByTestId('font-size-select');
     fireEvent.change(fontSelect, { target: { value: '16px' } });
     expect(document.execCommand).toHaveBeenCalledWith('fontSize', false, '4');
 
@@ -126,22 +126,24 @@ describe('WysiwygEditor', () => {
   });
 
   it('handles templates correctly', () => {
-    const templates = [
-      { name: 'Template 1', content: '<p>Template content</p>' }
-    ];
     const onChange = jest.fn();
-    
-    render(
-      <WysiwygEditor
-        content=""
-        onChange={onChange}
-        templates={templates}
-      />
+    const templates = [
+      { name: 'Template 1', content: '<p>Template content</p>' },
+    ];
+
+    const { getByText } = render(
+      <WysiwygEditor content="" onChange={onChange} templates={templates} />
     );
 
-    const templateSelect = screen.getAllByRole('combobox')[1]; // Second combobox is template selector
-    fireEvent.change(templateSelect, { target: { value: 'Template 1' } });
-    
+    // Open the template selector
+    const templateButton = getByText('Template');
+    fireEvent.click(templateButton);
+
+    // Select the template
+    const templateItem = getByText('Template 1');
+    fireEvent.click(templateItem);
+
+    // Check if onChange was called with the correct content
     expect(onChange).toHaveBeenCalledWith('<p>Template content</p>');
   });
 

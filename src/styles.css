@@ -34,7 +34,7 @@
 .wysiwyg-container {
   border: 1px solid #ccc;
   border-radius: 4px;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -112,4 +112,31 @@
 
 .wysiwyg-toolbar input[type="color"]:hover {
   border-color: #ccc;
+}
+
+.template-selector {
+  position: relative;
+  display: inline-block;
+}
+
+.template-dropdown {
+  display: block;
+  position: absolute;
+  background-color: white;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  max-height: 150px;
+  overflow-y: auto;
+  width: 200px;
+  top: 100%; /* Position below the button */
+  left: 0;
+}
+
+.template-dropdown div {
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.template-dropdown div:hover {
+  background-color: #ddd;
 }

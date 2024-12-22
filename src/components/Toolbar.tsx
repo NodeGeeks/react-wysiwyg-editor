@@ -1,5 +1,6 @@
 import React from 'react';
 import { TableStyles } from '../types/TableStyles';
+import { Template } from '../WysiwygEditor';
 import { TablePopover } from './TablePopover';
 
 interface ToolbarProps {
@@ -11,7 +12,6 @@ interface ToolbarProps {
   onColor: (color: string) => void;
   onLink: () => void;
   onImage: () => void;
-  onTemplate: (templateContent: string) => void;
   onUndo: () => void;
   onRedo: () => void;
   onAlignLeft: () => void;
@@ -26,6 +26,8 @@ interface ToolbarProps {
   showTablePopover: boolean;
   setShowTablePopover: (show: boolean) => void;
   tablePopoverRef: React.RefObject<HTMLDivElement>;
+  templates: Template[];
+  onSelectTemplate: (template: Template) => void;
 }
 const toolbarIcons = {
   bold: <svg  xmlns="http://www.w3.org/2000/svg"  width="16" height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth="2"  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-bold"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 5h6a3.5 3.5 0 0 1 0 7h-6z" /><path d="M13 12h1a3.5 3.5 0 0 1 0 7h-7v-7" /></svg>,
@@ -69,9 +71,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onShowTablePopover,
   showTablePopover,
   setShowTablePopover,
-  tablePopoverRef
+  tablePopoverRef,
+  templates,
+  onSelectTemplate
 }) => {
   const [highlightedTextColor, setHighlightedTextColor] = React.useState('black');
+  const [showTemplateSelector, setShowTemplateSelector] = React.useState(false);
   return (
     <div className="wysiwyg-toolbar">
       <div className="toolbar-group">
@@ -81,7 +86,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       </div>
       
       <div className="toolbar-group">
-        <select onChange={(e) => onFontSize(e.target.value)} title="Font Size">
+        <select onChange={(e) => onFontSize(e.target.value)} data-testid="font-size-select" title="Font Size">
           <option value="12px">12px</option>
           <option value="14px">14px</option>
           <option value="16px">16px</option>
@@ -89,7 +94,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           <option value="24px">24px</option>
         </select>
         
-        <select onChange={(e) => onFontFamily(e.target.value)} title="Font Family">
+        <select onChange={(e) => onFontFamily(e.target.value)} data-testid="font-family-select" title="Font Family">
           <option value="Arial">Arial</option>
           <option value="Times New Roman">Times New Roman</option>
           <option value="Helvetica">Helvetica</option>
@@ -172,5 +177,36 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           />
         )}
       </div>
+
+      <div className="toolbar-group">
+        <div className="template-selector">
+          <button
+            onClick={() => setShowTemplateSelector(!showTemplateSelector)}
+            title="Template"
+          >
+            Template
+          </button>
+          {showTemplateSelector && (
+            <select
+              className="template-dropdown"
+              size={5}
+              onChange={(e) => {
+                const selectedTemplate = templates.find(template => template.name === e.target.value);
+                if (selectedTemplate) {
+                  onSelectTemplate(selectedTemplate);
+                  setShowTemplateSelector(false);
+                }
+              }}
+            >
+              {templates.map((template) => (
+                <option key={template.name} value={template.name}>
+                  {template.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      </div>
     </div>
-  )};
+  );
+};
