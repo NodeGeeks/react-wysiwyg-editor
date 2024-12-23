@@ -517,34 +517,12 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
                 }
                 
                 // Save position and insert line breaks
-                document.execCommand('insertHTML', false, '<br>');
-                
-                // Force refresh to ensure proper layout
-                const content = editorRef.current.innerHTML;
-                editorRef.current.innerHTML = content;
-                
-                // Move cursor to end of inserted breaks
-                const walker = document.createTreeWalker(
-                  editorRef.current,
-                  NodeFilter.SHOW_ELEMENT,
-                  {
-                    acceptNode: (node) => 
-                      node.nodeName === 'BR' ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
-                  }
-                );
-                
-                let lastBr: Node | null = null;
-                let node: Node | null;
-                while ((node = walker.nextNode())) {
-                  lastBr = node;
-                }
-                
-                if (lastBr) {
-                  range.setStartAfter(lastBr);
-                  range.setEndAfter(lastBr);
-                  selection.removeAllRanges();
-                  selection.addRange(range);
-                }
+                const br = document.createElement('br');
+                range.insertNode(br);
+                range.setStartAfter(br);
+                range.setEndAfter(br);
+                selection.removeAllRanges();
+                selection.addRange(range);
                 
                 // Trigger onChange
                 handleChange({ currentTarget: editorRef.current } as React.FormEvent<HTMLDivElement>);
