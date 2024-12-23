@@ -52,6 +52,22 @@ describe('WysiwygEditor', () => {
     expect(editor.innerHTML).toBe('Hello <span class="template-binding" data-binding="name">World</span>!');
   });
 
+  it('processes nested bindings correctly', () => {
+    const content = 'Hello {{contact.name}}!';
+    const bindings = { contact: { name: 'World' } };
+    
+    render(
+      <WysiwygEditor
+        content={content}
+        onChange={() => {console.log("")}}
+        bindings={bindings}
+      />
+    );
+    
+    const editor = screen.getByRole('textbox');
+    expect(editor.innerHTML).toBe('Hello <span class="template-binding" data-binding="contact.name">World</span>!');
+  });
+
   it('updates binding correctly', () => {
     // Create a ref to hold the setBindings function
     let setBindingsRef: React.Dispatch<React.SetStateAction<{ name: string }>> | null = null;
@@ -131,17 +147,15 @@ describe('WysiwygEditor', () => {
       { name: 'Template 1', content: '<p>Template content</p>' },
     ];
 
-    const { getByText } = render(
+    render(
       <WysiwygEditor content="" onChange={onChange} templates={templates} />
     );
 
     // Open the template selector
-    const templateButton = getByText('Template');
-    fireEvent.click(templateButton);
+    fireEvent.click(screen.getByTitle('Template'));
 
     // Select the template
-    const templateItem = getByText('Template 1');
-    fireEvent.click(templateItem);
+    fireEvent.change(screen.getByRole('listbox'), { target: { value: 'Template 1' } });
 
     // Check if onChange was called with the correct content
     expect(onChange).toHaveBeenCalledWith('<p>Template content</p>');

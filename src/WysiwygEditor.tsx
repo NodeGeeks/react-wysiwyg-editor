@@ -35,7 +35,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     if (!text) return '';
     return text.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
       const trimmedKey = key.trim();
-      const value = bindings[trimmedKey];
+      const value: any = trimmedKey.split('.').reduce((acc: any, part: string) => acc && acc[part], bindings);
       return `<span class="template-binding" data-binding="${trimmedKey}">${value !== undefined ? value : match}</span>`;
     });
   };
@@ -233,8 +233,8 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     spans.forEach((span) => {
       const binding = span.getAttribute('data-binding');
       if (binding) {
-        const value = bindings[binding];
-        span.textContent = value !== undefined ? value : `{{${binding}}}`;
+        const value = binding.split('.').reduce((acc, part) => acc && acc[part], bindings);
+        span.textContent = value !== undefined ? String(value) : `{{${binding}}}`;
       }
     });
   }, [bindings]);

@@ -8,7 +8,7 @@ function App() {
   const templates = [
     {
       name: 'Welcome Email',
-      content: '<h1>Welcome {{name}}!</h1><p>We\'re excited to have you on board.</p>'
+      content: '<h1>Welcome {{contact.firstName}}!</h1><p>We\'re excited to have you on board.</p>'
     },
     {
       name: 'Newsletter',
@@ -17,15 +17,24 @@ function App() {
   ];
 
   const [bindings, setBindings] = useState({
-    name: 'John Doe',
+    contact: {  
+      firstName: 'John',
+      email: 'john.doe@example.com',
+      address: {
+        street: '123 Main St',
+        city: 'Anytown',
+        state: 'CA',
+        zip: '12345'
+      }
+    },
     title: 'Monthly Newsletter',
     content: 'Here are the latest updates...'
   })
   return (
     <>
       <h1>NodeGeeks React WYSIWYG Editor</h1>
-      <input value={bindings.name} onChange={(e)=>{
-        setBindings({...bindings, name: e.target.value});
+      <input value={bindings.contact.firstName} onChange={(e)=>{
+        setBindings({...bindings, contact: {...bindings.contact, firstName: e.target.value}});
       }} />
       <br />
       <br />
