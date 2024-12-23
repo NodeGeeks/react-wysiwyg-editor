@@ -45,6 +45,7 @@ function App() {
         bindings={bindings}
         debug={true}
       />
+      {content}
     </>
   )
 }
