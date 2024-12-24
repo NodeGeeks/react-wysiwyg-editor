@@ -92,6 +92,13 @@ const MyAdvancedEditor = () => {
 | bindings | Record<string, any> | No | Object containing variable bindings for template interpolation |
 | templates | Template[] | No | Array of template objects with name and content properties |
 
+## Template Object
+
+| Property | Type | Description |
+|----------|------|-------------|
+| name | string | The name of the template |
+| content | string | The HTML content of the template |
+
 ## Special Thanks
 
 To the [Tabler Icons](https://tabler.io/) project, as these are the icons used.
