@@ -517,10 +517,12 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
                 }
                 
                 // Save position and insert line breaks
-                const br = document.createElement('br');
-                range.insertNode(br);
-                range.setStartAfter(br);
-                range.setEndAfter(br);
+                const br1 = document.createElement('br');
+                const br2 = document.createElement('br');
+                range.insertNode(br1);
+                range.insertNode(br2);
+                range.setStartAfter(br2);
+                range.collapse(true);
                 selection.removeAllRanges();
                 selection.addRange(range);
                 
