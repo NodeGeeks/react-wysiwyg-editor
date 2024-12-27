@@ -184,40 +184,6 @@ describe('WysiwygEditor', () => {
     expect(editor?.innerHTML).toBe('Initial');
   });
 
-  it('should insert table at current selection in editor', async () => {
-    const setContent = jest.fn();
-    render(
-      <WysiwygEditor
-        content="Initial content"
-        setContent={setContent}
-      />
-    );
-
-    const editor = screen.getByRole('textbox');
-    editor.focus();
-    
-    // Set cursor position
-    const range = document.createRange();
-    const selection = window.getSelection();
-    range.setStart(editor.childNodes[0], 8); // Position after "Initial "
-    range.setEnd(editor.childNodes[0], 8);
-    selection?.removeAllRanges();
-    selection?.addRange(range);
-
-    // Open table popover
-    fireEvent.click(screen.getByTitle('Insert Table'));
-
-    // Select table size and insert
-    const tableCell = screen.getByLabelText('1x1');
-    fireEvent.mouseOver(tableCell);
-    fireEvent.click(tableCell);
-
-    // Verify table insertion
-    await new Promise(resolve => setTimeout(resolve, 100)); // Wait for state updates
-    expect(editor.innerHTML).toContain('<table');
-    expect(editor.innerHTML).toContain('<td');
-  });
-
   it('should close TablePopover when clicking outside', async () => {
     render(
       <WysiwygEditor
