@@ -236,6 +236,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
         span.textContent = value !== undefined ? String(value) : `{{${binding}}}`;
       }
     });
+    setContent(editorRef.current.innerHTML); // Update the content state in the parent component
   }, [bindings]);
 
   const saveToHistory = (newContent: string) => {
