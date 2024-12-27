@@ -1,6 +1,6 @@
 {
   "name": "nodegeeks-react-wysiwyg-editor",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Advanced WYSIWYG editor with data binding support for React applications",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

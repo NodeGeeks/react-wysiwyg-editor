@@ -1,7 +1,7 @@
 # React WYSIWYG Editor
 ---
 ## !!UNDER DEVELOPMENT!!
-A feature-rich WYSIWYG (What You See Is What You Get) editor component for React applications with support for text formatting, templates, and variable bindings.
+A feature-rich WYSIWYG (What You See Is What You Get) editor component for React applications with support for text formatting, templates, and deeply nested data bindings.
 ___
 ## Features
 
@@ -15,6 +15,7 @@ ___
 - ↩️ Undo/Redo functionality
 - 🎯 TypeScript support
 - ♿ Accessibility features
+- 📊 Table support
 
 ## Installation
 
@@ -39,7 +40,7 @@ const MyEditor = () => {
   return (
     <WysiwygEditor
       content={content}
-      onChange={setContent}
+      setContent={setContent}
     />
   );
 };
@@ -75,7 +76,7 @@ const MyAdvancedEditor = () => {
   return (
     <WysiwygEditor
       content={content}
-      onChange={setContent}
+      setContent={setContent}
       templates={templates}
       bindings={bindings}
     />
@@ -88,9 +89,10 @@ const MyAdvancedEditor = () => {
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
 | content | string | Yes | The HTML content to display in the editor |
-| onChange | (content: string) => void | Yes | Callback fired when content changes |
+| setContent | (content: string) => void | Yes | Callback fired when content changes |
 | bindings | Record<string, any> | No | Object containing variable bindings for template interpolation |
 | templates | Template[] | No | Array of template objects with name and content properties |
+| debug | boolean | No | Enables debug mode for additional logging and Insertion Point/Selection data |
 
 ## Template Object
 
