@@ -6,11 +6,11 @@ import { WysiwygEditor } from '../WysiwygEditor';
 describe('WysiwygEditor Cursor Behavior', () => {
 
   it('maintains cursor position after formatting changes', async () => {
-    const handleChange = jest.fn();
+    const setContent = jest.fn();
     const { container } = render(
       <WysiwygEditor
         content="Test content"
-        onChange={handleChange}
+        setContent={setContent}
       />
     );
 

@@ -5,11 +5,11 @@ import { WysiwygEditor } from '../WysiwygEditor';
 
 describe('WysiwygEditor Enter Key Behavior', () => {
   it('allows typing immediately after pressing enter in middle of text', async () => {
-    const handleChange = jest.fn();
+    const setContent = jest.fn();
     render(
       <WysiwygEditor
         content="One line of text"
-        onChange={handleChange}
+        setContent={setContent}
       />
     );
 

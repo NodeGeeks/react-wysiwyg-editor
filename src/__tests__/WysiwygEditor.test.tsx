@@ -14,26 +14,26 @@ describe('WysiwygEditor', () => {
     render(
       <WysiwygEditor
         content={content}
-        onChange={() => {console.log("")}}
+        setContent={() => {console.log("")}}
       />
     );
     const editor = screen.getByRole('textbox');
     expect(editor.innerHTML).toBe(content);
   });
 
-  it('calls onChange when content is modified', () => {
-    const handleChange = jest.fn();
+  it('calls setContent when content is modified', () => {
+    const setContent = jest.fn();
     render(
       <WysiwygEditor
         content="Initial content"
-        onChange={handleChange}
+        setContent={setContent}
       />
     );
     
     const editor = screen.getByRole('textbox');
     fireEvent.input(editor, { target: { innerHTML: 'New content' } });
     
-    expect(handleChange).toHaveBeenCalledWith('New content');
+    expect(setContent).toHaveBeenCalledWith('New content');
   });
 
   it('processes bindings correctly', () => {
@@ -43,7 +43,7 @@ describe('WysiwygEditor', () => {
     render(
       <WysiwygEditor
         content={content}
-        onChange={() => {console.log("")}}
+        setContent={() => {console.log("")}}
         bindings={bindings}
       />
     );
@@ -59,7 +59,7 @@ describe('WysiwygEditor', () => {
     render(
       <WysiwygEditor
         content={content}
-        onChange={() => {console.log("")}}
+        setContent={() => {console.log("")}}
         bindings={bindings}
       />
     );
@@ -80,7 +80,7 @@ describe('WysiwygEditor', () => {
       return (
         <WysiwygEditor
           content="Hello {{name}}!"
-          onChange={() => { console.log(""); }}
+          setContent={() => { console.log(""); }}
           bindings={bindings}
         />
       );
@@ -100,11 +100,11 @@ describe('WysiwygEditor', () => {
   });
 
   it('applies text formatting commands', () => {
-    const onChange = jest.fn();
+    const setContent = jest.fn();
     render(
       <WysiwygEditor
         content="Test content"
-        onChange={onChange}
+        setContent={setContent}
       />
     );
 
@@ -122,11 +122,11 @@ describe('WysiwygEditor', () => {
   });
 
   it('applies color and font size changes', () => {
-    const onChange = jest.fn();
+    const setContent = jest.fn();
     render(
       <WysiwygEditor
         content="Test content"
-        onChange={onChange}
+        setContent={setContent}
       />
     );
 
@@ -142,13 +142,13 @@ describe('WysiwygEditor', () => {
   });
 
   it('handles templates correctly', () => {
-    const onChange = jest.fn();
+    const setContent = jest.fn();
     const templates = [
       { name: 'Template 1', content: '<p>Template content</p>' },
     ];
 
     render(
-      <WysiwygEditor content="" onChange={onChange} templates={templates} />
+      <WysiwygEditor content="" setContent={setContent} templates={templates} />
     );
 
     // Open the template selector
@@ -157,16 +157,16 @@ describe('WysiwygEditor', () => {
     // Select the template
     fireEvent.change(screen.getByRole('listbox'), { target: { value: 'Template 1' } });
 
-    // Check if onChange was called with the correct content
-    expect(onChange).toHaveBeenCalledWith('<p>Template content</p>');
+    // Check if setContent was called with the correct content
+    expect(setContent).toHaveBeenCalledWith('<p>Template content</p>');
   });
 
   it('handles undo operation', async () => {
-    const onChange = jest.fn();
+    const setContent = jest.fn();
     const { container } = render(
       <WysiwygEditor
         content="Initial"
-        onChange={onChange}
+        setContent={setContent}
       />
     );
 
@@ -185,11 +185,11 @@ describe('WysiwygEditor', () => {
   });
 
   it('should insert table at current selection in editor', async () => {
-    const onChange = jest.fn();
+    const setContent = jest.fn();
     render(
       <WysiwygEditor
         content="Initial content"
-        onChange={onChange}
+        setContent={setContent}
       />
     );
 
@@ -222,7 +222,7 @@ describe('WysiwygEditor', () => {
     render(
       <WysiwygEditor
         content="Initial content"
-        onChange={() => {console.log("")}}
+        setContent={() => {console.log("")}}
       />
     );
 
