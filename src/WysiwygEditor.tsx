@@ -12,7 +12,7 @@ export interface Template {
 
 interface WysiwygEditorProps {
   content: string;
-  onChange: (content: string) => void;
+  setContent: (content: string) => void;
   bindings?: Record<string, any>;
   templates?: Template[];
   debug?: boolean;
@@ -26,7 +26,7 @@ interface SelectionState {
 
 export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   content,
-  onChange,
+  setContent,
   bindings = {},
   templates = [],
   debug = false
@@ -40,7 +40,6 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     });
   };
 
-  const [, setEditorContent] = React.useState(content);
   const [history, setHistory] = React.useState<string[]>([content]);
   const [historyIndex, setHistoryIndex] = React.useState(0);
   const [selectionState, setSelectionState] = React.useState<SelectionState | null>(null);
@@ -200,7 +199,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     if (editorRef.current) {
       const processedContent = processBindings(content);
       editorRef.current.innerHTML = processedContent;
-      setEditorContent(content);
+      setContent(content); // Update the content state in the parent component
     }
     if (debug) {
       const handleSelectionChange = () => {
@@ -222,9 +221,9 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     if (editorRef.current && !isUpdatingRef.current) {
       const processedContent = processBindings(content);
       editorRef.current.innerHTML = processedContent;
-      setEditorContent(content);
+      setContent(content); // Update the content state in the parent component
     }
-  }, [content]);
+  }, [content, bindings]);
 
   // Handle binding updates
   React.useEffect(() => {
@@ -252,8 +251,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     const selectionState = getCaretPosition();
     
     const newContent = event.currentTarget.innerHTML;
-    setEditorContent(newContent);
-    onChange(newContent);
+    setContent(newContent); // Update the content state in the parent component
     saveToHistory(newContent);
   
     // Restore selection after state updates
@@ -274,8 +272,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     try {
       document.execCommand(command, false, value.toString());
       const newContent = editorRef.current.innerHTML;
-      setEditorContent(newContent);
-      onChange(newContent);
+      setContent(newContent);
       saveToHistory(newContent);
   
       // Restore selection after command execution
@@ -332,8 +329,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
       if (editorRef.current) {
         const selectionState = getCaretPosition();
         editorRef.current.innerHTML = previousContent;
-        setEditorContent(previousContent);
-        onChange(previousContent);
+        setContent(previousContent);
         
         requestAnimationFrame(() => {
           if (selectionState) {
@@ -351,8 +347,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
       if (editorRef.current) {
         const selectionState = getCaretPosition();
         editorRef.current.innerHTML = nextContent;
-        setEditorContent(nextContent);
-        onChange(nextContent);
+        setContent(nextContent);
         
         requestAnimationFrame(() => {
           if (selectionState) {
@@ -400,8 +395,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
       const selectionState = getCaretPosition();
       const processedContent = processBindings(template.content);
       editorRef.current.innerHTML = processedContent;
-      setEditorContent(template.content);
-      onChange(template.content);
+      setContent(template.content);
       saveToHistory(template.content);
   
       requestAnimationFrame(() => {
@@ -453,8 +447,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
 
     // Update the content and history
     const newContent = editorRef.current.innerHTML;
-    setEditorContent(newContent);
-    onChange(newContent);
+    setContent(newContent);
     saveToHistory(newContent);
   };
 
@@ -526,7 +519,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
                 selection.removeAllRanges();
                 selection.addRange(range);
                 
-                // Trigger onChange
+                // Trigger setContent
                 handleChange({ currentTarget: editorRef.current } as React.FormEvent<HTMLDivElement>);
               }
             }

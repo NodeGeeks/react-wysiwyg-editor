@@ -29,25 +29,26 @@ function App() {
     },
     title: 'Monthly Newsletter',
     content: 'Here are the latest updates...'
-  })
+  });
+
   return (
     <>
       <h1>NodeGeeks React WYSIWYG Editor</h1>
-      <input value={bindings.contact.firstName} onChange={(e)=>{
+      <input value={bindings.contact.firstName} onChange={(e) => {
         setBindings({...bindings, contact: {...bindings.contact, firstName: e.target.value}});
       }} />
       <br />
       <br />
       <WysiwygEditor
         content={content}
-        onChange={setContent}
+        setContent={setContent}
         templates={templates}
         bindings={bindings}
         debug={true}
       />
       {content}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
