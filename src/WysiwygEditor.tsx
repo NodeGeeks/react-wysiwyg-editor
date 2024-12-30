@@ -491,41 +491,6 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
         className="nodegeeks-react-wysiwyg-editor"
         contentEditable
         onInput={handleChange}
-        onKeyDown={(e) => {
-          // Prevent default behavior for tab key
-          if (e.key === 'Tab') {
-            e.preventDefault();
-            document.execCommand('insertText', false, '\t');
-          }
-          // Handle Enter key to maintain cursor position
-          else if (e.key === 'Enter') {
-            e.preventDefault();
-            if (editorRef.current) {
-              const selection = document.getSelection();
-              if (selection && selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                
-                // Handle any selected text first
-                if (!range.collapsed) {
-                  range.deleteContents();
-                }
-                
-                // Save position and insert line breaks
-                const br1 = document.createElement('br');
-                const br2 = document.createElement('br');
-                range.insertNode(br1);
-                range.insertNode(br2);
-                range.setStartAfter(br2);
-                range.collapse(true);
-                selection.removeAllRanges();
-                selection.addRange(range);
-                
-                // Trigger setContent
-                handleChange({ currentTarget: editorRef.current } as React.FormEvent<HTMLDivElement>);
-              }
-            }
-          }
-        }}
         suppressContentEditableWarning={true}
         role="textbox"
         aria-label="Rich text editor"
