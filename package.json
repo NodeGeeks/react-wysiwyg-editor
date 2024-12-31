@@ -33,7 +33,8 @@
     "wysiwyg",
     "editor",
     "rich-text",
-    "data-binding"
+    "data-binding",
+    "templates"
   ],
   "author": "",
   "license": "MIT",
