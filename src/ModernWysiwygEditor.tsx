@@ -1,4 +1,8 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from 'react';
+import { DebugPanel } from './components/DebugPanel';
+import { Toolbar } from './components/Toolbar';
+import { TableStyles } from './types/TableStyles';
+import { Template } from './WysiwygEditor';
 
 // Core interfaces for editor configuration and state management
 interface ElementConfig {
@@ -21,7 +25,7 @@ interface EditorState {
 
 class ModernEditor {
     private container: HTMLElement;
-    private editorElement: HTMLElement;
+    public editorElement: HTMLElement;
     private state: EditorState;
     private isUpdating = false;
 
@@ -302,7 +306,7 @@ class ModernEditor {
     }
 
     // Normalize HTML content
-    private normalizeContent(): void {
+    public normalizeContent(): void {
         if (!this.editorElement) return;
 
         // Merge adjacent identical inline elements
