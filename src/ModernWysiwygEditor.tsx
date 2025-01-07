@@ -1,8 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { DebugPanel } from './components/DebugPanel';
 import { Toolbar } from './components/Toolbar';
-import { TableStyles } from './types/TableStyles';
-import { Template } from './WysiwygEditor';
 
 // Core interfaces for editor configuration and state management
 interface ElementConfig {
@@ -23,11 +21,25 @@ interface EditorState {
     historyIndex: number;     // Current position in history
 }
 
-class ModernEditor {
+interface Template {
+    name: string;
+    content: string;
+}
+
+interface EditorConfig {
+    bindings?: Record<string, any>;
+    templates?: Template[];
+    onChange?: (content: string) => void;
+    debug?: boolean;
+}
+
+class RichEditor {
     private container: HTMLElement;
     public editorElement: HTMLElement;
     private state: EditorState;
     private isUpdating = false;
+    private bindings: Record<string, any> = {};
+    private onChange?: (content: string) => void;
 
     // Comprehensive configuration for HTML elements supported by the editor
     private readonly elementConfigs: Record<string, ElementConfig> = {
@@ -77,8 +89,10 @@ class ModernEditor {
         'a': { blockElement: false, replacedElement: false, inlineElement: true, visualLength: 0, isVoid: false },
     };
 
-    constructor(container: HTMLElement, initialContent = '') {
+    constructor(container: HTMLElement, initialContent = '', config?: EditorConfig) {
         this.container = container;
+        this.bindings = config?.bindings || {};
+        this.onChange = config?.onChange;
         this.editorElement = document.createElement('div');
         this.editorElement.className = 'modern-editor';
         this.editorElement.setAttribute('contenteditable', 'true');
@@ -302,6 +316,7 @@ class ModernEditor {
             ];
             this.state.historyIndex++;
             this.state.content = newContent;
+            this.onChange?.(newContent);
         }
     }
 
@@ -413,32 +428,175 @@ class ModernEditor {
         sanitize(doc.body);
         return doc.body.innerHTML;
     }
+
+    // Add these new methods
+    public updateBindings(newBindings: Record<string, any>): void {
+        this.bindings = newBindings;
+        this.processBindings();
+    }
+
+    private processBindings(): void {
+        const content = this.editorElement.innerHTML;
+        const processedContent = this.processBindingsInContent(content);
+        this.editorElement.innerHTML = processedContent;
+    }
+
+    private processBindingsInContent(text: string): string {
+        return text.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
+            const trimmedKey = key.trim();
+            const value = trimmedKey.split('.').reduce((acc: any, part: string) => acc && acc[part], this.bindings);
+            return `<span class="template-binding" data-binding="${trimmedKey}">${value !== undefined ? value : match}</span>`;
+        });
+    }
+
+    public applyTemplate(template: Template): void {
+        const processedContent = this.processBindingsInContent(template.content);
+        this.editorElement.innerHTML = processedContent;
+        this.updateContent(processedContent);
+    }
+
+    // Add formatting methods
+    public applyFormat(format: string, attributes?: Record<string, string>): void {
+        if (attributes) {
+            const element = document.createElement(format);
+            for (const [key, value] of Object.entries(attributes)) {
+                element.setAttribute(key, value);
+            }
+            const selection = window.getSelection();
+            if (selection && selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                range.surroundContents(element);
+            }
+            this.normalizeContent();
+        } else {
+            this.toggleFormat(format);
+        }
+    }
+
+    public insertTable(rows: number, columns: number, styles: { borderColor: string, cellPadding: string }): void {
+        let tableHTML = `<table style="border-color: ${styles.borderColor}; border-collapse: collapse;">`;
+        for (let i = 0; i < rows; i++) {
+            tableHTML += '<tr>';
+            for (let j = 0; j < columns; j++) {
+                tableHTML += `<td style="border: 1px solid ${styles.borderColor}; padding: ${styles.cellPadding};">&nbsp;</td>`;
+            }
+            tableHTML += '</tr>';
+        }
+        tableHTML += '</table>';
+        this.insert(tableHTML);
+    }
+
+    // Public API methods for formatting
+    public format(command: string, value?: string): void {
+        switch (command) {
+            case 'bold':
+                this.applyFormat('strong');
+                break;
+            case 'italic':
+                this.applyFormat('em');
+                break;
+            case 'underline':
+                this.applyFormat('u');
+                break;
+            case 'align':
+                this.applyFormat('div', { style: `text-align: ${value || 'left'}` });
+                break;
+            case 'list':
+                this.applyFormat(value === 'ordered' ? 'ol' : 'ul');
+                break;
+            default:
+                this.applyFormat(command);
+        }
+    }
+
+    // Public insert methods
+    public insertLink(url: string, text?: string): void {
+        const linkText = text || url;
+        const linkHtml = `<a href="${url}">${linkText}</a>`;
+        this.insert(linkHtml);
+    }
+
+    public insertImage(url: string, alt?: string): void {
+        const imgHtml = `<img src="${url}" alt="${alt || ''}" />`;
+        this.insert(imgHtml);
+    }
 }
 
 // React component wrapper
-interface ModernEditorProps {
+interface RichEditorProps {
     content: string;
     onChange: (content: string) => void;
+    bindings?: Record<string, any>;
+    templates?: Template[];
+    debug?: boolean;
     className?: string;
 }
 
-const ModernEditorComponent: React.FC<ModernEditorProps> = ({
+const ModernEditorComponent: React.FC<RichEditorProps> = ({
     content,
+    onChange,
+    bindings,
+    templates,
+    debug,
     className
 }) => {
     const editorRef = React.useRef<HTMLDivElement>(null);
-    const editorInstanceRef = React.useRef<ModernEditor | null>(null);
+    const editorInstanceRef = React.useRef<RichEditor | null>(null);
 
+    const [selectionState, setSelectionState] = useState<{
+        isCollapsed: boolean;
+        start: number;
+        end: number;
+        length: number;
+    } | null>(null);
+    
     React.useEffect(() => {
         if (editorRef.current && !editorInstanceRef.current) {
-            editorInstanceRef.current = new ModernEditor(editorRef.current, content);
+            editorInstanceRef.current = new RichEditor(editorRef.current, content, {
+                bindings,
+                templates,
+                onChange,
+                debug
+            });
         }
+        if (debug) {
+            // Add selection change listener for debug panel
+            document.addEventListener('selectionchange', () => {
+              if (editorInstanceRef.current) {
+                const selection = window.getSelection();
+                if (selection && selection.rangeCount > 0) {
+                  const range = selection.getRangeAt(0);
+                  setSelectionState({
+                    isCollapsed: range.collapsed,
+                    start: range.startOffset,
+                    end: range.endOffset,
+                    length: range.endOffset - range.startOffset
+                  });
+                }
+              }
+            });
+          }
     }, []);
 
+    React.useEffect(() => {
+        if (editorInstanceRef.current && bindings) {
+            editorInstanceRef.current.updateBindings(bindings);
+        }
+    }, [bindings]);
+
     return (
-        <div ref={editorRef} className={className} />
+        <div className="modern-editor-container">
+            <Toolbar
+                onFormat={(format, attrs) => editorInstanceRef.current?.applyFormat(format, attrs)}
+                onTable={(rows, cols, styles) => editorInstanceRef.current?.insertTable(rows, cols, styles)}
+                onTemplate={(template) => editorInstanceRef.current?.applyTemplate(template)}
+                templates={templates}
+            />
+            <div ref={editorRef} className={className} />
+            {debug && <DebugPanel selectionState={selectionState} />}
+        </div>
     );
 };
 
-export { ModernEditor, ModernEditorComponent };
+export { ModernEditorComponent, RichEditor, type Template };
 
