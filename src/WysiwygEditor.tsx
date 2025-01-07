@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { DebugPanel } from './components/DebugPanel';
-import { Toolbar } from './components/Toolbar';
+import { Toolbar } from './components/ExecCmdToolbar';
 import "./styles.css";
 import { TableStyles } from './types/TableStyles';
 
