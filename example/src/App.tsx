@@ -1,53 +1,30 @@
-import { useState } from 'react';
-import { WysiwygEditor } from '../../src/WysiwygEditor';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import ExampleEditor from './components/ExampleEditor';
+import DomEditor from './components/DomEditor';
 import './App.css';
 
 function App() {
-  const [content, setContent] = useState('');
-
-  const templates = [
-    {
-      name: 'Welcome Email',
-      content: '<h1>Welcome {{contact.firstName}}!</h1><p>We\'re excited to have you on board.</p>'
-    },
-    {
-      name: 'Newsletter',
-      content: '<h2>{{title}}</h2><p>{{content}}</p>'
-    }
-  ];
-
-  const [bindings, setBindings] = useState({
-    contact: {  
-      firstName: 'John',
-      email: 'john.doe@example.com',
-      address: {
-        street: '123 Main St',
-        city: 'Anytown',
-        state: 'CA',
-        zip: '12345'
-      }
-    },
-    title: 'Monthly Newsletter',
-    content: 'Here are the latest updates...'
-  });
-
   return (
-    <>
-      <h1>NodeGeeks React WYSIWYG Editor</h1>
-      <input value={bindings.contact.firstName} onChange={(e) => {
-        setBindings({...bindings, contact: {...bindings.contact, firstName: e.target.value}});
-      }} />
-      <br />
-      <br />
-      <WysiwygEditor
-        content={content}
-        setContent={setContent}
-        templates={templates}
-        bindings={bindings}
-        debug={true}
-      />
-      {content}
-    </>
+    <BrowserRouter>
+      <div>
+        <nav>
+          <ul>
+            <li>
+              <Link to="/wysiwyg-editor">Simple WYSIWYG Editor</Link>
+            </li>
+            <li>
+              <Link to="/dom-editor">DOM Editor</Link>
+            </li>
+          </ul>
+        </nav>
+
+        <Routes>
+          <Route path="/wysiwyg-editor" element={<ExampleEditor />} />
+          <Route path="/dom-editor" element={<DomEditor />} />
+          <Route path="/" element={<ExampleEditor />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
