@@ -140,3 +140,8 @@
 .template-dropdown div:hover {
   background-color: #ddd;
 }
+
+.modern-editor {
+  background-color: white;
+  color: black;
+}
