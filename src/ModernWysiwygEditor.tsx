@@ -1,24 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { DebugPanel } from './components/DebugPanel';
 import { Toolbar } from './components/Toolbar';
 
-// Core interfaces for editor configuration and state management
-interface ElementConfig {
-    blockElement: boolean;      // Whether element is block-level
-    replacedElement: boolean;   // Whether element is replaced (like img)
-    inlineElement: boolean;     // Whether element can be used inline
-    visualLength: number;       // Visual length contribution to offset
-    isVoid: boolean;           // Whether element is self-closing
-}
-
 interface EditorState {
     selection: {
-        start: number;           // Start offset of selection
-        end: number;            // End offset of selection
+        start: number;
+        end: number;
     };
-    content: string;          // Current editor content
-    history: string[];        // Undo/redo history
-    historyIndex: number;     // Current position in history
+    content: string;
+    history: string[];
+    historyIndex: number;
 }
 
 interface Template {
@@ -33,65 +24,22 @@ interface EditorConfig {
     debug?: boolean;
 }
 
+/**
+ * A rich text editor class that provides advanced editing capabilities with support for formatting,
+ * templates, and content history management.
+ */
 class RichEditor {
+    /** The container element that hosts the editor */
     private container: HTMLElement;
+    /** The main contenteditable element where editing occurs */
     public editorElement: HTMLElement;
+    /** Internal state tracking content, history, and selection */
     private state: EditorState;
-    private isUpdating = false;
-    private bindings: Record<string, any> = {};
+    /** Callback function to handle content changes */
     private onChange?: (content: string) => void;
-
-    // Comprehensive configuration for HTML elements supported by the editor
-    private readonly elementConfigs: Record<string, ElementConfig> = {
-        // Block Elements
-        'p': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'div': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'h1': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'h2': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'h3': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'h4': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'h5': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'h6': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'blockquote': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'pre': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-
-        // List Elements
-        'ul': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'ol': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'li': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-
-        // Table Elements
-        'table': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'thead': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'tbody': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'tr': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'td': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-        'th': { blockElement: true, replacedElement: false, inlineElement: false, visualLength: 1, isVoid: false },
-
-        // Inline Elements
-        'strong': { blockElement: false, replacedElement: false, inlineElement: true, visualLength: 0, isVoid: false },
-        'b': { blockElement: false, replacedElement: false, inlineElement: true, visualLength: 0, isVoid: false },
-        'em': { blockElement: false, replacedElement: false, inlineElement: true, visualLength: 0, isVoid: false },
-        'i': { blockElement: false, replacedElement: false, inlineElement: true, visualLength: 0, isVoid: false },
-        'u': { blockElement: false, replacedElement: false, inlineElement: true, visualLength: 0, isVoid: false },
-        'strike': { blockElement: false, replacedElement: false, inlineElement: true, visualLength: 0, isVoid: false },
-        's': { blockElement: false, replacedElement: false, inlineElement: true, visualLength: 0, isVoid: false },
-        'sub': { blockElement: false, replacedElement: false, inlineElement: true, visualLength: 0, isVoid: false },
-        'sup': { blockElement: false, replacedElement: false, inlineElement: true, visualLength: 0, isVoid: false },
-        'code': { blockElement: false, replacedElement: false, inlineElement: true, visualLength: 0, isVoid: false },
-        'mark': { blockElement: false, replacedElement: false, inlineElement: true, visualLength: 0, isVoid: false },
-        'span': { blockElement: false, replacedElement: false, inlineElement: true, visualLength: 0, isVoid: false },
-
-        // Special Elements
-        'img': { blockElement: false, replacedElement: true, inlineElement: true, visualLength: 1, isVoid: true },
-        'br': { blockElement: false, replacedElement: true, inlineElement: true, visualLength: 1, isVoid: true },
-        'hr': { blockElement: true, replacedElement: true, inlineElement: false, visualLength: 1, isVoid: true },
-        'a': { blockElement: false, replacedElement: false, inlineElement: true, visualLength: 0, isVoid: false },
-    };
 
     constructor(container: HTMLElement, initialContent = '', config?: EditorConfig) {
         this.container = container;
-        this.bindings = config?.bindings || {};
         this.onChange = config?.onChange;
         this.editorElement = document.createElement('div');
         this.editorElement.className = 'modern-editor';
@@ -99,7 +47,6 @@ class RichEditor {
         this.editorElement.setAttribute('role', 'textbox');
         this.editorElement.setAttribute('aria-multiline', 'true');
 
-        // Initialize editor state
         this.state = {
             selection: { start: 0, end: 0 },
             content: initialContent,
@@ -110,125 +57,26 @@ class RichEditor {
         this.setupEditor();
     }
 
-    // Set up editor event listeners and initial content
+    /**
+     * Initializes the editor by setting up the contenteditable element and event listeners
+     * @private
+     */
     private setupEditor(): void {
         this.container.appendChild(this.editorElement);
         this.editorElement.innerHTML = this.state.content;
-
-        // Handle selection changes
-        document.addEventListener('selectionchange', this.handleSelectionChange.bind(this));
-
-        // Handle input events
-        this.editorElement.addEventListener('input', this.handleInput.bind(this));
-
-        // Handle paste events
         this.editorElement.addEventListener('paste', this.handlePaste.bind(this));
-
-        // Handle keydown events
+        this.editorElement.addEventListener('input', () => {
+            this.updateContent(this.editorElement.innerHTML);
+        });
         this.editorElement.addEventListener('keydown', this.handleKeyDown.bind(this));
     }
 
-    // Selection change handler
-    private handleSelectionChange(): void {
-        if (this.isUpdating) return;
-
-        const selection = window.getSelection();
-        if (selection && selection.rangeCount > 0) {
-            const range = selection.getRangeAt(0);
-            if (this.editorElement.contains(range.commonAncestorContainer)) {
-                this.state.selection = {
-                    start: this.getTextOffset(range.startContainer, range.startOffset),
-                    end: this.getTextOffset(range.endContainer, range.endOffset)
-                };
-            }
-        }
-    }
-
-    // Input handler
-    private handleInput(_event: Event): void {
-        if (this.isUpdating) return;
-        this.isUpdating = true;
-
-        try {
-            const newContent = this.editorElement.innerHTML;
-            this.updateContent(newContent);
-            this.normalizeContent();
-        } finally {
-            this.isUpdating = false;
-        }
-    }
-
-    // Paste handler with HTML sanitization
-    private handlePaste(event: ClipboardEvent): void {
-        event.preventDefault();
-
-        const clipboardData = event.clipboardData;
-        if (!clipboardData) return;
-
-        // Try to get HTML content first
-        let content = clipboardData.getData('text/html');
-
-        // Fall back to plain text if no HTML
-        if (!content) {
-            content = clipboardData.getData('text/plain');
-            content = content.replace(/\n/g, '<br>');
-        }
-
-        // Sanitize and insert content
-        const sanitizedContent = this.sanitizeHtml(content);
-        this.insertContent(sanitizedContent);
-    }
-
-    // Add this method to the ModernEditor class
-    private insertContent(content: string): void {
-        const selection = window.getSelection();
-        if (!selection || selection.rangeCount === 0) return;
-
-        // Get the current range
-        const range = selection.getRangeAt(0);
-
-        // Create a temporary container for the content
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = content;
-
-        // Handle multi-node content
-        if (tempDiv.childNodes.length > 1) {
-            // Create document fragment to hold all nodes
-            const fragment = document.createDocumentFragment();
-            while (tempDiv.firstChild) {
-                fragment.appendChild(tempDiv.firstChild);
-            }
-
-            // Delete current selection if any
-            range.deleteContents();
-
-            // Insert the fragment
-            range.insertNode(fragment);
-        } else {
-            // Simple single node insertion
-            range.deleteContents();
-            range.insertNode(tempDiv.firstChild!);
-        }
-
-        // Move cursor to end of inserted content
-        range.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(range);
-
-        // Normalize and update content
-        this.normalizeContent();
-        this.updateContent(this.editorElement.innerHTML);
-    }
-
-    // Optional: Add a public method for external content insertion
-    public insert(content: string): void {
-        const sanitizedContent = this.sanitizeHtml(content);
-        this.insertContent(sanitizedContent);
-    }
-
-    // Key handler for special commands (ctrl+b, etc)
+    /**
+     * Handles keyboard events for the editor, including keyboard shortcuts
+     * @private
+     * @param event - The keyboard event to handle
+     */
     private handleKeyDown(event: KeyboardEvent): void {
-        // Handle keyboard shortcuts
         if (event.ctrlKey || event.metaKey) {
             switch (event.key.toLowerCase()) {
                 case 'b':
@@ -255,72 +103,162 @@ class RichEditor {
         }
     }
 
-    // Calculate text offset for a given node and position
-    private getTextOffset(node: Node, offset: number): number {
-        let totalOffset = 0;
-        const walker = document.createTreeWalker(
-            this.editorElement,
-            NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
-            {
-                acceptNode: (node) => {
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        const element = node as HTMLElement;
-                        if (getComputedStyle(element).display === 'none') {
-                            return NodeFilter.FILTER_REJECT;
-                        }
-                    }
-                    return NodeFilter.FILTER_ACCEPT;
-                }
+    // Improved toggleFormat method
+    /**
+     * Toggles formatting for the selected text using the specified HTML tag
+     * @param tagName - The HTML tag to apply or remove (e.g., 'strong', 'em', 'u')
+     */
+    public toggleFormat(tagName: string): void {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) return;
+
+        // Store the original range
+        const originalRange = selection.getRangeAt(0).cloneRange();
+
+        // Check if the current selection is already formatted with the tag
+        const currentNode = originalRange.commonAncestorContainer;
+        const existingFormat = this.findParentWithTag(currentNode, tagName);
+
+        if (existingFormat) {
+            // Remove formatting
+            const parent = existingFormat.parentNode;
+            if (!parent) return;
+
+            const fragment = document.createDocumentFragment();
+            while (existingFormat.firstChild) {
+                fragment.appendChild(existingFormat.firstChild);
             }
-        );
+            parent.replaceChild(fragment, existingFormat);
 
-        let found = false;
-        while (walker.nextNode() && !found) {
-            const currentNode = walker.currentNode;
-
-            if (currentNode === node) {
-                if (currentNode.nodeType === Node.TEXT_NODE) {
-                    totalOffset += offset;
+            // Update selection to cover the unformatted content
+            const newRange = document.createRange();
+            newRange.selectNodeContents(fragment);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+        } else {
+            // Apply formatting
+            const element = document.createElement(tagName);
+            
+            try {
+                // Handle collapsed selection (cursor position)
+                if (originalRange.collapsed) {
+                    element.textContent = '\u200B'; // Zero-width space
+                    originalRange.insertNode(element);
+                    
+                    // Place cursor inside the new element
+                    const newRange = document.createRange();
+                    newRange.selectNodeContents(element);
+                    selection.removeAllRanges();
+                    selection.addRange(newRange);
+                } else {
+                    originalRange.surroundContents(element);
+                    
+                    // Maintain the original selection
+                    const newRange = document.createRange();
+                    newRange.selectNodeContents(element);
+                    selection.removeAllRanges();
+                    selection.addRange(newRange);
                 }
-                found = true;
-                break;
-            }
-
-            if (currentNode.nodeType === Node.TEXT_NODE) {
-                totalOffset += currentNode.textContent?.length || 0;
-            } else if (currentNode.nodeType === Node.ELEMENT_NODE) {
-                const element = currentNode as HTMLElement;
-                const config = this.elementConfigs[element.tagName.toLowerCase()];
-
-                if (config) {
-                    if (config.replacedElement) {
-                        totalOffset += config.visualLength;
-                    }
-                    if (config.blockElement && totalOffset > 0) {
-                        totalOffset += config.visualLength;
-                    }
-                }
+            } catch (e) {
+                // Handle complex selections
+                const fragment = originalRange.extractContents();
+                element.appendChild(fragment);
+                originalRange.insertNode(element);
+                
+                // Update selection to cover the formatted content
+                const newRange = document.createRange();
+                newRange.selectNodeContents(element);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
             }
         }
 
-        return totalOffset;
+        this.normalizeContent();
+        this.updateContent(this.editorElement.innerHTML);
     }
 
-    // Update content and save to history
-    private updateContent(newContent: string): void {
-        if (newContent !== this.state.content) {
-            // Add to history
-            this.state.history = [
-                ...this.state.history.slice(0, this.state.historyIndex + 1),
-                newContent
-            ];
-            this.state.historyIndex++;
-            this.state.content = newContent;
-            this.onChange?.(newContent);
+    // Helper method to find parent element with specific tag
+    /**
+     * Finds the nearest parent element with the specified tag name
+     * @private
+     * @param node - The starting node to search from
+     * @param tagName - The HTML tag name to search for
+     * @returns The found element or null if not found
+     */
+    private findParentWithTag(node: Node, tagName: string): HTMLElement | null {
+        const tagNameLower = tagName.toLowerCase();
+        let current = node;
+        while (current && current !== this.editorElement) {
+            if (current.nodeType === Node.ELEMENT_NODE && 
+                (current as HTMLElement).tagName.toLowerCase() === tagNameLower) {
+                return current as HTMLElement;
+            }
+            current = current.parentNode as Node;
+        }
+        return null;
+    }
+
+    // Improved paste handler
+    /**
+     * Handles paste events, sanitizing and formatting pasted content
+     * @private
+     * @param event - The clipboard event containing pasted content
+     */
+    private handlePaste(event: ClipboardEvent): void {
+        event.preventDefault();
+
+        const clipboardData = event.clipboardData;
+        if (!clipboardData) return;
+
+        // Store the current selection
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) return;
+        
+        const range = selection.getRangeAt(0);
+
+        // Try to get HTML content first
+        let content = clipboardData.getData('text/html');
+
+        // Fall back to plain text if no HTML
+        if (!content) {
+            content = clipboardData.getData('text/plain');
+            if (content) {
+                // Convert plain text to HTML preserving line breaks
+                content = content.split(/\r\n|\r|\n/).map(line => 
+                    line.trim() ? `<p>${line}</p>` : '<p><br></p>'
+                ).join('');
+            }
+        }
+
+        if (content) {
+            // Create temporary container and insert sanitized content
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = this.sanitizeHtml(content);
+
+            // Create document fragment for efficient insertion
+            const fragment = document.createDocumentFragment();
+            while (tempDiv.firstChild) {
+                fragment.appendChild(tempDiv.firstChild);
+            }
+
+            // Delete current selection and insert new content
+            range.deleteContents();
+            range.insertNode(fragment);
+
+            // Move selection after inserted content
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            this.normalizeContent();
+            this.updateContent(this.editorElement.innerHTML);
         }
     }
 
-    // Normalize HTML content
+    /**
+     * Normalizes the editor content by merging adjacent identical elements
+     * and ensuring proper block structure
+     */
     public normalizeContent(): void {
         if (!this.editorElement) return;
 
@@ -351,25 +289,22 @@ class RichEditor {
         }
     }
 
-    // Public API methods
-    public toggleFormat(tagName: string): void {
-        const selection = window.getSelection();
-        if (!selection || selection.rangeCount === 0) return;
-
-        const range = selection.getRangeAt(0);
-        const element = document.createElement(tagName);
-
-        try {
-            range.surroundContents(element);
-        } catch (e) {
-            // Handle complex selections
-            const fragment = range.extractContents();
-            element.appendChild(fragment);
-            range.insertNode(element);
+    /**
+     * Updates the editor content and manages the history stack
+     * @private
+     * @param newContent - The new content to set in the editor
+     */
+    private updateContent(newContent: string): void {
+        if (newContent !== this.state.content) {
+            // Remove any redo history when new changes occur
+            this.state.history = [
+                ...this.state.history.slice(0, this.state.historyIndex + 1),
+                newContent
+            ];
+            this.state.historyIndex = this.state.history.length - 1;
+            this.state.content = newContent;
+            this.onChange?.(newContent);
         }
-
-        this.normalizeContent();
-        this.updateContent(this.editorElement.innerHTML);
     }
 
     public undo(): void {
@@ -377,6 +312,7 @@ class RichEditor {
             this.state.historyIndex--;
             this.editorElement.innerHTML = this.state.history[this.state.historyIndex];
             this.state.content = this.state.history[this.state.historyIndex];
+            this.onChange?.(this.state.content);
         }
     }
 
@@ -385,218 +321,136 @@ class RichEditor {
             this.state.historyIndex++;
             this.editorElement.innerHTML = this.state.history[this.state.historyIndex];
             this.state.content = this.state.history[this.state.historyIndex];
+            this.onChange?.(this.state.content);
         }
     }
 
-    // HTML sanitization
+    private readonly allowedTags = [
+        // Block Elements
+        'p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'blockquote', 'pre', 'ul', 'ol', 'li',
+        // Inline Elements
+        'strong', 'b', 'em', 'i', 'u', 'strike', 's',
+        'sub', 'sup', 'code', 'mark', 'span',
+        // Special Elements
+        'img', 'br', 'hr', 'a', 'table', 'thead', 'tbody',
+        'tr', 'td', 'th'
+    ];
+
+    private readonly allowedAttributes: { [key: string]: string[] } = {
+        'a': ['href', 'title', 'target'],
+        'img': ['src', 'alt', 'title', 'width', 'height'],
+        '*': ['style', 'class'] // Allowed on all elements
+    };
+
+    /**
+     * Sanitizes HTML content by removing disallowed tags and attributes
+     * @private
+     * @param html - The HTML content to sanitize
+     * @returns The sanitized HTML string
+     */
     private sanitizeHtml(html: string): string {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-
-        const allowedTags = Object.keys(this.elementConfigs);
-        const allowedAttributes = ['href', 'src', 'alt', 'title', 'style'];
-
-        const sanitize = (node: Node): Node => {
+        
+        const sanitize = (node: Node): Node | null => {
             if (node.nodeType === Node.ELEMENT_NODE) {
                 const element = node as HTMLElement;
                 const tagName = element.tagName.toLowerCase();
-
-                if (!allowedTags.includes(tagName)) {
-                    const wrapper = document.createDocumentFragment();
-                    while (element.firstChild) {
-                        wrapper.appendChild(sanitize(element.firstChild));
-                    }
-                    return wrapper;
+                
+                // Check if tag is allowed
+                if (!this.allowedTags.includes(tagName)) {
+                    // Return text content only for disallowed tags
+                    return document.createTextNode(element.textContent || '');
                 }
-
-                // Remove disallowed attributes
+                
+                // Create new element of the same type
+                const newElement = document.createElement(tagName);
+                
+                // Copy allowed attributes
+                const allowedForTag = [
+                    ...(this.allowedAttributes[tagName] || []),
+                    ...(this.allowedAttributes['*'] || [])
+                ];
+                
                 Array.from(element.attributes).forEach(attr => {
-                    if (!allowedAttributes.includes(attr.name)) {
-                        element.removeAttribute(attr.name);
+                    if (allowedForTag.includes(attr.name)) {
+                        newElement.setAttribute(attr.name, attr.value);
                     }
                 });
-
-                // Sanitize children
+                
+                // Recursively sanitize children
                 Array.from(element.childNodes).forEach(child => {
-                    sanitize(child);
+                    const sanitizedChild = sanitize(child);
+                    if (sanitizedChild) {
+                        newElement.appendChild(sanitizedChild);
+                    }
                 });
+                
+                return newElement;
+            } else if (node.nodeType === Node.TEXT_NODE) {
+                return node.cloneNode(true);
             }
-
-            return node;
+            
+            return null;
         };
-
-        sanitize(doc.body);
-        return doc.body.innerHTML;
-    }
-
-    // Add these new methods
-    public updateBindings(newBindings: Record<string, any>): void {
-        this.bindings = newBindings;
-        this.processBindings();
-    }
-
-    private processBindings(): void {
-        const content = this.editorElement.innerHTML;
-        const processedContent = this.processBindingsInContent(content);
-        this.editorElement.innerHTML = processedContent;
-    }
-
-    private processBindingsInContent(text: string): string {
-        return text.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
-            const trimmedKey = key.trim();
-            const value = trimmedKey.split('.').reduce((acc: any, part: string) => acc && acc[part], this.bindings);
-            return `<span class="template-binding" data-binding="${trimmedKey}">${value !== undefined ? value : match}</span>`;
+        
+        const sanitizedFragment = document.createDocumentFragment();
+        Array.from(doc.body.childNodes).forEach(node => {
+            const sanitizedNode = sanitize(node);
+            if (sanitizedNode) {
+                sanitizedFragment.appendChild(sanitizedNode);
+            }
         });
-    }
-
-    public applyTemplate(template: Template): void {
-        const processedContent = this.processBindingsInContent(template.content);
-        this.editorElement.innerHTML = processedContent;
-        this.updateContent(processedContent);
-    }
-
-    // Add formatting methods
-    public applyFormat(format: string, attributes?: Record<string, string>): void {
-        if (attributes) {
-            const element = document.createElement(format);
-            for (const [key, value] of Object.entries(attributes)) {
-                element.setAttribute(key, value);
-            }
-            const selection = window.getSelection();
-            if (selection && selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                range.surroundContents(element);
-            }
-            this.normalizeContent();
-        } else {
-            this.toggleFormat(format);
-        }
-    }
-
-    public insertTable(rows: number, columns: number, styles: { borderColor: string, cellPadding: string }): void {
-        let tableHTML = `<table style="border-color: ${styles.borderColor}; border-collapse: collapse;">`;
-        for (let i = 0; i < rows; i++) {
-            tableHTML += '<tr>';
-            for (let j = 0; j < columns; j++) {
-                tableHTML += `<td style="border: 1px solid ${styles.borderColor}; padding: ${styles.cellPadding};">&nbsp;</td>`;
-            }
-            tableHTML += '</tr>';
-        }
-        tableHTML += '</table>';
-        this.insert(tableHTML);
-    }
-
-    // Public API methods for formatting
-    public format(command: string, value?: string): void {
-        switch (command) {
-            case 'bold':
-                this.applyFormat('strong');
-                break;
-            case 'italic':
-                this.applyFormat('em');
-                break;
-            case 'underline':
-                this.applyFormat('u');
-                break;
-            case 'align':
-                this.applyFormat('div', { style: `text-align: ${value || 'left'}` });
-                break;
-            case 'list':
-                this.applyFormat(value === 'ordered' ? 'ol' : 'ul');
-                break;
-            default:
-                this.applyFormat(command);
-        }
-    }
-
-    // Public insert methods
-    public insertLink(url: string, text?: string): void {
-        const linkText = text || url;
-        const linkHtml = `<a href="${url}">${linkText}</a>`;
-        this.insert(linkHtml);
-    }
-
-    public insertImage(url: string, alt?: string): void {
-        const imgHtml = `<img src="${url}" alt="${alt || ''}" />`;
-        this.insert(imgHtml);
+        
+        const resultContainer = document.createElement('div');
+        resultContainer.appendChild(sanitizedFragment);
+        return resultContainer.innerHTML;
     }
 }
 
 // React component wrapper
-interface RichEditorProps {
+interface EditorProps {
     content: string;
     onChange: (content: string) => void;
     bindings?: Record<string, any>;
     templates?: Template[];
     debug?: boolean;
-    className?: string;
 }
 
-const ModernEditorComponent: React.FC<RichEditorProps> = ({
+export const ModernEditorComponent: React.FC<EditorProps> = ({
     content,
     onChange,
     bindings,
     templates,
-    debug,
-    className
+    debug
 }) => {
     const editorRef = React.useRef<HTMLDivElement>(null);
     const editorInstanceRef = React.useRef<RichEditor | null>(null);
 
-    const [selectionState, setSelectionState] = useState<{
-        isCollapsed: boolean;
-        start: number;
-        end: number;
-        length: number;
-    } | null>(null);
-    
     React.useEffect(() => {
         if (editorRef.current && !editorInstanceRef.current) {
             editorInstanceRef.current = new RichEditor(editorRef.current, content, {
                 bindings,
                 templates,
-                onChange,
-                debug
+                onChange
             });
         }
-        if (debug) {
-            // Add selection change listener for debug panel
-            document.addEventListener('selectionchange', () => {
-              if (editorInstanceRef.current) {
-                const selection = window.getSelection();
-                if (selection && selection.rangeCount > 0) {
-                  const range = selection.getRangeAt(0);
-                  setSelectionState({
-                    isCollapsed: range.collapsed,
-                    start: range.startOffset,
-                    end: range.endOffset,
-                    length: range.endOffset - range.startOffset
-                  });
-                }
-              }
-            });
-          }
     }, []);
-
-    React.useEffect(() => {
-        if (editorInstanceRef.current && bindings) {
-            editorInstanceRef.current.updateBindings(bindings);
-        }
-    }, [bindings]);
 
     return (
         <div className="modern-editor-container">
             <Toolbar
-                onFormat={(format, attrs) => editorInstanceRef.current?.applyFormat(format, attrs)}
-                onTable={(rows, cols, styles) => editorInstanceRef.current?.insertTable(rows, cols, styles)}
-                onTemplate={(template) => editorInstanceRef.current?.applyTemplate(template)}
-                templates={templates}
-            />
-            <div ref={editorRef} className={className} />
-            {debug && <DebugPanel selectionState={selectionState} />}
+                onFormat={(format) => editorInstanceRef.current?.toggleFormat(format)}
+                templates={templates || []} onTable={function (): void {
+                    throw new Error('Function not implemented.');
+                } } onTemplate={function (): void {
+                    throw new Error('Function not implemented.');
+                } }            />
+            <div ref={editorRef} />
+            {debug && <DebugPanel selectionState={null} />}
         </div>
     );
 };
 
-export { ModernEditorComponent, RichEditor, type Template };
-
+export { type Template };
