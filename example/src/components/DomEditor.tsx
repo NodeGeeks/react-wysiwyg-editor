@@ -41,6 +41,10 @@ const DomEditor: React.FC = () => {
         bindings={bindings}
         debug={true}
       />
+      String Output
+      {content && <pre>{content}</pre>}
+      HTML Output
+      {content && <div dangerouslySetInnerHTML={{ __html: content }} />}
     </div>
   );
 };
