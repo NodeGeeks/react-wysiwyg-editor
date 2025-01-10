@@ -112,11 +112,11 @@ class RichEditor {
         const selection = window.getSelection();
         if (!selection || selection.rangeCount === 0) return;
 
-        // Store the original range
-        const originalRange = selection.getRangeAt(0).cloneRange();
+        const range = selection.getRangeAt(0);
+        if (!range) return;
 
         // Check if the current selection is already formatted with the tag
-        const currentNode = originalRange.commonAncestorContainer;
+        const currentNode = range.commonAncestorContainer;
         const existingFormat = this.findParentWithTag(currentNode, tagName);
 
         if (existingFormat) {
@@ -129,47 +129,30 @@ class RichEditor {
                 fragment.appendChild(existingFormat.firstChild);
             }
             parent.replaceChild(fragment, existingFormat);
-
-            // Update selection to cover the unformatted content
-            const newRange = document.createRange();
-            newRange.selectNodeContents(fragment);
-            selection.removeAllRanges();
-            selection.addRange(newRange);
         } else {
             // Apply formatting
             const element = document.createElement(tagName);
             
             try {
                 // Handle collapsed selection (cursor position)
-                if (originalRange.collapsed) {
+                if (range.collapsed) {
                     element.textContent = '\u200B'; // Zero-width space
-                    originalRange.insertNode(element);
+                    range.insertNode(element);
                     
                     // Place cursor inside the new element
                     const newRange = document.createRange();
-                    newRange.selectNodeContents(element);
+                    newRange.setStart(element, 0);
+                    newRange.setEnd(element, 1);
                     selection.removeAllRanges();
                     selection.addRange(newRange);
                 } else {
-                    originalRange.surroundContents(element);
-                    
-                    // Maintain the original selection
-                    const newRange = document.createRange();
-                    newRange.selectNodeContents(element);
-                    selection.removeAllRanges();
-                    selection.addRange(newRange);
+                    range.surroundContents(element);
                 }
             } catch (e) {
                 // Handle complex selections
-                const fragment = originalRange.extractContents();
+                const fragment = range.extractContents();
                 element.appendChild(fragment);
-                originalRange.insertNode(element);
-                
-                // Update selection to cover the formatted content
-                const newRange = document.createRange();
-                newRange.selectNodeContents(element);
-                selection.removeAllRanges();
-                selection.addRange(newRange);
+                range.insertNode(element);
             }
         }
 
