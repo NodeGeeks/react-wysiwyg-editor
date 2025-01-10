@@ -12,6 +12,10 @@ const ExampleEditor: React.FC = () => {
         setContent={setContent}
         debug={true}
       />
+      <h1>String Output</h1>
+      {content && <pre>{content}</pre>}
+      <h1>HTML Output</h1>
+      {content && <div dangerouslySetInnerHTML={{ __html: content }} />}
     </div>
   );
 };
