@@ -44,7 +44,6 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   const [historyIndex, setHistoryIndex] = React.useState(0);
   const [selectionState, setSelectionState] = React.useState<SelectionState | null>(null);
   const editorRef = React.useRef<HTMLDivElement>(null);
-  const isUpdatingRef = React.useRef(false);
   const [storedSelection, setStoredSelection] = React.useState<Range | null>(null);
   const [showTablePopover, setShowTablePopover] = React.useState(false);
   const tablePopoverRef = React.useRef<HTMLDivElement>(null);
@@ -218,16 +217,17 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
 
   // Update content when content or bindings change
   React.useEffect(() => {
-    if (editorRef.current && !isUpdatingRef.current) {
+    if (editorRef.current) {
       const processedContent = processBindings(content);
-      editorRef.current.innerHTML = processedContent;
-      setContent(content); // Update the content state in the parent component
+      if (editorRef.current.innerHTML !== processedContent) {
+        editorRef.current.innerHTML = processedContent;
+      }
     }
   }, [content, bindings]);
 
   // Handle binding updates
   React.useEffect(() => {
-    if (!editorRef.current || isUpdatingRef.current) return;
+    if (!editorRef.current) return;
     const spans = editorRef.current.querySelectorAll('.template-binding');
     spans.forEach((span) => {
       const binding = span.getAttribute('data-binding');
@@ -244,24 +244,13 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
   };
-
-  const handleChange = (event: React.FormEvent<HTMLDivElement>) => {
-    if (!editorRef.current || isUpdatingRef.current) return;
   
-    isUpdatingRef.current = true;
-    const selectionState = getCaretPosition();
+  const handleChange = (event: React.FormEvent<HTMLDivElement>) => {
+    if (!editorRef.current) return;
     
     const newContent = event.currentTarget.innerHTML;
-    setContent(newContent); // Update the content state in the parent component
+    setContent(newContent);
     saveToHistory(newContent);
-  
-    // Restore selection after state updates
-    requestAnimationFrame(() => {
-      if (selectionState) {
-        setCaretPosition(selectionState);
-      }
-      isUpdatingRef.current = false;
-    });
   };
 
   const execCommand = (command: string, value: string | boolean | number = false) => {
