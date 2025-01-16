@@ -1,25 +1,32 @@
 {
-    "parser": "@typescript-eslint/parser",
-    "extends": [
+  "parser": "@typescript-eslint/parser",
+  "extends": [
       "plugin:react/recommended",
       "plugin:@typescript-eslint/recommended"
-    ],
-    "parserOptions": {
+  ],
+  "parserOptions": {
       "ecmaVersion": 2020,
       "sourceType": "module",
       "ecmaFeatures": {
-        "jsx": true
+          "jsx": true
       }
-    },
-    "settings": {
+  },
+  "settings": {
       "react": {
-        "version": "detect"
+          "version": "detect"
       }
-    },
-    "rules": {
-      // You can add custom rules here, for example:
+  },
+  "rules": {
       "react/prop-types": "off",
-      "@typescript-eslint/explicit-module-boundary-types": "off"
-    }
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+      // Indentation rules
+      "indent": ["error", 4],
+      "@typescript-eslint/indent": ["error", ],
+      // Quote rules
+      "quotes": ["error", "double"],
+      "@typescript-eslint/quotes": ["error", "double"],
+      // JSX specific indentation
+      "react/jsx-indent": ["error", 4],
+      "react/jsx-indent-props": ["error", 4]
+  }
 }
-  
