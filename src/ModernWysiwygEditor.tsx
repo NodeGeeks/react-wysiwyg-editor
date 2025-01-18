@@ -1,6 +1,6 @@
-import React from 'react';
-import { DebugPanel } from './components/DebugPanel';
-import { Toolbar } from './components/Toolbar';
+import React from "react";
+import { DebugPanel } from "./components/DebugPanel";
+import { Toolbar } from "./components/Toolbar";
 
 interface EditorState {
     selection: {
@@ -38,14 +38,14 @@ class RichEditor {
     /** Callback function to handle content changes */
     private onChange?: (content: string) => void;
 
-    constructor(container: HTMLElement, initialContent = '', config?: EditorConfig) {
+    constructor(container: HTMLElement, initialContent = "", config?: EditorConfig) {
         this.container = container;
         this.onChange = config?.onChange;
-        this.editorElement = document.createElement('div');
-        this.editorElement.className = 'modern-editor';
-        this.editorElement.setAttribute('contenteditable', 'true');
-        this.editorElement.setAttribute('role', 'textbox');
-        this.editorElement.setAttribute('aria-multiline', 'true');
+        this.editorElement = document.createElement("div");
+        this.editorElement.className = "modern-editor";
+        this.editorElement.setAttribute("contenteditable", "true");
+        this.editorElement.setAttribute("role", "textbox");
+        this.editorElement.setAttribute("aria-multiline", "true");
 
         this.state = {
             selection: { start: 0, end: 0 },
@@ -64,11 +64,11 @@ class RichEditor {
     private setupEditor(): void {
         this.container.appendChild(this.editorElement);
         this.editorElement.innerHTML = this.state.content;
-        this.editorElement.addEventListener('paste', this.handlePaste.bind(this));
-        this.editorElement.addEventListener('input', () => {
+        this.editorElement.addEventListener("paste", this.handlePaste.bind(this));
+        this.editorElement.addEventListener("input", () => {
             this.updateContent(this.editorElement.innerHTML);
         });
-        this.editorElement.addEventListener('keydown', this.handleKeyDown.bind(this));
+        this.editorElement.addEventListener("keydown", this.handleKeyDown.bind(this));
     }
 
     /**
@@ -79,26 +79,26 @@ class RichEditor {
     private handleKeyDown(event: KeyboardEvent): void {
         if (event.ctrlKey || event.metaKey) {
             switch (event.key.toLowerCase()) {
-                case 'b':
+                case "b":
                     event.preventDefault();
-                    this.toggleFormat('strong');
+                    this.toggleFormat("strong");
                     break;
-                case 'i':
+                case "i":
                     event.preventDefault();
-                    this.toggleFormat('em');
+                    this.toggleFormat("em");
                     break;
-                case 'u':
+                case "u":
                     event.preventDefault();
-                    this.toggleFormat('u');
+                    this.toggleFormat("u");
                     break;
-                case 'z':
+                case "z":
                     event.preventDefault();
                     if (event.shiftKey) {
                         this.redo();
                     } else {
                         this.undo();
                     }
-                    break;
+                break;
             }
         }
     }
@@ -136,7 +136,7 @@ class RichEditor {
             try {
                 // Handle collapsed selection (cursor position)
                 if (range.collapsed) {
-                    element.textContent = '\u200B'; // Zero-width space
+                    element.textContent = "\u200B"; // Zero-width space
                     range.insertNode(element);
                     
                     // Place cursor inside the new element
@@ -200,22 +200,22 @@ class RichEditor {
         const range = selection.getRangeAt(0);
 
         // Try to get HTML content first
-        let content = clipboardData.getData('text/html');
+        let content = clipboardData.getData("text/html");
 
         // Fall back to plain text if no HTML
         if (!content) {
-            content = clipboardData.getData('text/plain');
+            content = clipboardData.getData("text/plain");
             if (content) {
                 // Convert plain text to HTML preserving line breaks
                 content = content.split(/\r\n|\r|\n/).map(line => 
-                    line.trim() ? `<p>${line}</p>` : '<p><br></p>'
-                ).join('');
+                    line.trim() ? `<p>${line}</p>` : "<p><br></p>"
+                ).join("");
             }
         }
 
         if (content) {
             // Create temporary container and insert sanitized content
-            const tempDiv = document.createElement('div');
+            const tempDiv = document.createElement("div");
             tempDiv.innerHTML = this.sanitizeHtml(content);
 
             // Create document fragment for efficient insertion
@@ -246,7 +246,7 @@ class RichEditor {
         if (!this.editorElement) return;
 
         // Merge adjacent identical inline elements
-        const mergeableElements = ['strong', 'em', 'u', 'strike', 's', 'code', 'mark'];
+        const mergeableElements = ["strong", "em", "u", "strike", "s", "code", "mark"];
 
         mergeableElements.forEach(tagName => {
             const elements = this.editorElement.getElementsByTagName(tagName);
@@ -255,7 +255,7 @@ class RichEditor {
                 const previous = elements[i - 1];
 
                 if (current.previousSibling === previous) {
-                    if (current.getAttribute('style') === previous.getAttribute('style')) {
+                    if (current.getAttribute("style") === previous.getAttribute("style")) {
                         while (current.firstChild) {
                             previous.appendChild(current.firstChild);
                         }
@@ -266,7 +266,7 @@ class RichEditor {
         });
 
         // Ensure proper block structure
-        if (!this.editorElement.querySelector('p, div, h1, h2, h3, h4, h5, h6')) {
+        if (!this.editorElement.querySelector("p, div, h1, h2, h3, h4, h5, h6")) {
             const content = this.editorElement.innerHTML;
             this.editorElement.innerHTML = `<p>${content}</p>`;
         }
@@ -310,20 +310,20 @@ class RichEditor {
 
     private readonly allowedTags = [
         // Block Elements
-        'p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-        'blockquote', 'pre', 'ul', 'ol', 'li',
+        "p", "div", "h1", "h2", "h3", "h4", "h5", "h6",
+        "blockquote", "pre", "ul", "ol", "li",
         // Inline Elements
-        'strong', 'b', 'em', 'i', 'u', 'strike', 's',
-        'sub', 'sup', 'code', 'mark', 'span',
+        "strong", "b", "em", "i", "u", "strike", "s",
+        "sub", "sup", "code", "mark", "span",
         // Special Elements
-        'img', 'br', 'hr', 'a', 'table', 'thead', 'tbody',
-        'tr', 'td', 'th'
+        "img", "br", "hr", "a", "table", "thead", "tbody",
+        "tr", "td", "th"
     ];
 
     private readonly allowedAttributes: { [key: string]: string[] } = {
-        'a': ['href', 'title', 'target'],
-        'img': ['src', 'alt', 'title', 'width', 'height'],
-        '*': ['style', 'class'] // Allowed on all elements
+        "a": ["href", "title", "target"],
+        "img": ["src", "alt", "title", "width", "height"],
+        "*": ["style", "class"] // Allowed on all elements
     };
 
     /**
@@ -333,8 +333,10 @@ class RichEditor {
      * @returns The sanitized HTML string
      */
     private sanitizeHtml(html: string): string {
+        if (typeof window === "undefined") return html;
+        
         const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
+        const doc = parser.parseFromString(html, "text/html");
         
         const sanitize = (node: Node): Node | null => {
             if (node.nodeType === Node.ELEMENT_NODE) {
@@ -344,7 +346,7 @@ class RichEditor {
                 // Check if tag is allowed
                 if (!this.allowedTags.includes(tagName)) {
                     // Return text content only for disallowed tags
-                    return document.createTextNode(element.textContent || '');
+                    return document.createTextNode(element.textContent || "");
                 }
                 
                 // Create new element of the same type
@@ -353,7 +355,7 @@ class RichEditor {
                 // Copy allowed attributes
                 const allowedForTag = [
                     ...(this.allowedAttributes[tagName] || []),
-                    ...(this.allowedAttributes['*'] || [])
+                    ...(this.allowedAttributes["*"] || [])
                 ];
                 
                 Array.from(element.attributes).forEach(attr => {
@@ -386,7 +388,7 @@ class RichEditor {
             }
         });
         
-        const resultContainer = document.createElement('div');
+        const resultContainer = document.createElement("div");
         resultContainer.appendChild(sanitizedFragment);
         return resultContainer.innerHTML;
     }
@@ -426,9 +428,9 @@ export const ModernEditorComponent: React.FC<EditorProps> = ({
             <Toolbar
                 onFormat={(format) => editorInstanceRef.current?.toggleFormat(format)}
                 templates={templates || []} onTable={function (): void {
-                    throw new Error('Function not implemented.');
+                    throw new Error("Function not implemented.");
                 } } onTemplate={function (): void {
-                    throw new Error('Function not implemented.');
+                    throw new Error("Function not implemented.");
                 } }            />
             <div ref={editorRef} />
             {debug && <DebugPanel selectionState={null} />}
