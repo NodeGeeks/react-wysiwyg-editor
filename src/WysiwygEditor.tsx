@@ -249,8 +249,10 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     if (!editorRef.current) return;
     
     const newContent = event.currentTarget.innerHTML;
-    setContent(newContent);
-    saveToHistory(newContent);
+    if (newContent !== history[historyIndex]) {
+      setContent(newContent);
+      saveToHistory(newContent);
+    }
   };
 
   const execCommand = (command: string, value: string | boolean | number = false) => {
@@ -314,19 +316,22 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
 
   const handleUndo = () => {
     if (historyIndex > 0) {
-      setHistoryIndex(historyIndex - 1);
-      const previousContent = history[historyIndex - 1];
+      const newHistoryIndex = historyIndex - 1;
+      setHistoryIndex(newHistoryIndex);
+      const previousContent = history[newHistoryIndex];
+      const selectionState = getCaretPosition();
       if (editorRef.current) {
-        const selectionState = getCaretPosition();
         editorRef.current.innerHTML = previousContent;
-        setContent(previousContent);
-        
-        requestAnimationFrame(() => {
+      }
+      requestAnimationFrame(() => {
+        if (editorRef.current) {
+          editorRef.current.innerHTML = previousContent;
           if (selectionState) {
             setCaretPosition(selectionState);
           }
-        });
-      }
+        }
+      });
+      setContent(previousContent); // Update the content state in the parent component
     }
   };
   
