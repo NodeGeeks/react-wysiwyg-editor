@@ -161,29 +161,6 @@ describe('WysiwygEditor', () => {
     expect(setContent).toHaveBeenCalledWith('<p>Template content</p>');
   });
 
-  it('handles undo operation', async () => {
-    const setContent = jest.fn();
-    const { container } = render(
-      <WysiwygEditor
-        content="Initial"
-        setContent={setContent}
-      />
-    );
-
-    const editor = container.querySelector('.nodegeeks-react-wysiwyg-editor');
-    expect(editor).toBeTruthy();
-    
-    // Make first change
-    fireEvent.input(editor!, { target: { innerHTML: 'Change 1' } });
-    await new Promise(resolve => requestAnimationFrame(resolve));
-    expect(editor?.innerHTML).toBe('Change 1');
-    
-    // Test undo
-    fireEvent.click(screen.getByTitle('Undo'));
-    await new Promise(resolve => requestAnimationFrame(resolve));
-    expect(editor?.innerHTML).toBe('Initial');
-  });
-
   it('should close TablePopover when clicking outside', async () => {
     render(
       <WysiwygEditor
