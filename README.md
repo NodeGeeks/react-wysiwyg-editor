@@ -84,6 +84,110 @@ const MyAdvancedEditor = () => {
 };
 ```
 
+### Basic Usage with Modern Editor
+
+The `ModernEditorComponent` uses DOM Manipulation vs `execCommand`
+
+```tsx
+import React from 'react';
+import { ModernEditorComponent } from 'react-wysiwyg-editor';
+
+const MyEditor = () => {
+  const [content, setContent] = React.useState('');
+
+  return (
+    <ModernEditorComponent
+      content={content}
+      onChange={setContent}
+      debug={true} // Optional debug panel
+    />
+  );
+};
+```
+
+### With Templates and Data Bindings
+
+```tsx
+import React from 'react';
+import { ModernEditorComponent } from 'react-wysiwyg-editor';
+
+const MyEditorWithTemplates = () => {
+  const [content, setContent] = React.useState('');
+  
+  const templates = [
+    {
+      name: 'Welcome Email',
+      content: `
+        <h1>Welcome {{user.firstName}}!</h1>
+        <p>We're excited to have you join us at {{company.name}}.</p>
+        <p>Your account details:</p>
+        <ul>
+          <li>Username: {{user.email}}</li>
+          <li>Role: {{user.role}}</li>
+        </ul>
+      `
+    }
+  ];
+
+  const bindings = {
+    user: {
+      firstName: 'John',
+      email: 'john@example.com',
+      role: 'Member'
+    },
+    company: {
+      name: 'TechCorp'
+    }
+  };
+
+  return (
+    <ModernEditorComponent
+      content={content}
+      onChange={setContent}
+      templates={templates}
+      bindings={bindings}
+      debug={true}
+    />
+  );
+};
+```
+
+## Key Features
+
+### Modern DOM Manipulation
+The editor uses direct DOM manipulation techniques for better performance and stability:
+- Direct manipulation of DOM nodes for precise control
+- Efficient selection and range management
+- Improved content structure handling
+
+### Smart Content Normalization
+Automatically maintains clean and consistent content:
+- Merges adjacent identical formatting elements
+- Ensures proper block structure
+- Maintains clean HTML output
+
+### HTML Paste Handling
+Advanced paste handling with smart content processing:
+- HTML content preservation when available
+- Plain text fallback with formatting
+- Automatic sanitization of pasted content
+- Proper block element handling
+
+### Keyboard Shortcuts
+Built-in keyboard shortcuts for common operations:
+- Ctrl/Cmd + B: Toggle bold
+- Ctrl/Cmd + I: Toggle italic
+- Ctrl/Cmd + U: Toggle underline
+- Ctrl/Cmd + Z: Undo
+- Ctrl/Cmd + Shift + Z: Redo
+
+### Content Sanitization
+Comprehensive HTML sanitization:
+- Removes unsafe tags and attributes
+- Preserves allowed formatting
+- Configurable allowed elements and attributes
+- Safe handling of pasted content
+
 ## Props
 
 | Prop | Type | Required | Description |
