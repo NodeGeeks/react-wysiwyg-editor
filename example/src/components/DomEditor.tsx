@@ -36,7 +36,7 @@ const DomEditor: React.FC = () => {
       <h1>DOM-based WYSIWYG Editor Example</h1>
       <ModernEditorComponent
         content={content}
-        onChange={setContent}
+        setContent={setContent}
         templates={templates}
         bindings={bindings}
         debug={true}

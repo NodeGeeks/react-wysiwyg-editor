@@ -20,7 +20,7 @@ interface Template {
 interface EditorConfig {
     bindings?: Record<string, any>;
     templates?: Template[];
-    onChange?: (content: string) => void;
+    setContent?: (content: string) => void;
     debug?: boolean;
 }
 
@@ -36,11 +36,11 @@ class RichEditor {
     /** Internal state tracking content, history, and selection */
     private state: EditorState;
     /** Callback function to handle content changes */
-    private onChange?: (content: string) => void;
+    private setContent?: (content: string) => void;
 
     constructor(container: HTMLElement, initialContent = "", config?: EditorConfig) {
         this.container = container;
-        this.onChange = config?.onChange;
+        this.setContent = config?.setContent;
         this.editorElement = document.createElement("div");
         this.editorElement.className = "modern-editor";
         this.editorElement.setAttribute("contenteditable", "true");
@@ -103,10 +103,21 @@ class RichEditor {
         }
     }
 
-    // Improved toggleFormat method
     /**
-     * Toggles formatting for the selected text using the specified HTML tag
-     * @param tagName - The HTML tag to apply or remove (e.g., 'strong', 'em', 'u')
+     * Toggles the specified HTML formatting tag for the current selection.
+     * If the selection already has the formatting, it will be removed.
+     * If the selection doesn't have the formatting, it will be applied.
+     * 
+     * @param {string} tagName - The HTML tag name to toggle (e.g., 'b', 'i', 'u')
+     * @throws {Error} When the selection cannot be properly formatted
+     * @returns {void}
+     * 
+     * @example
+     * // To toggle bold formatting
+     * toggleFormat('b');
+     * 
+     * // To toggle italic formatting
+     * toggleFormat('i');
      */
     public toggleFormat(tagName: string): void {
         const selection = window.getSelection();
@@ -115,20 +126,36 @@ class RichEditor {
         const range = selection.getRangeAt(0);
         if (!range) return;
 
-        // Check if the current selection is already formatted with the tag
+        // Check if the selection is within or contains the same formatting
         const currentNode = range.commonAncestorContainer;
-        const existingFormat = this.findParentWithTag(currentNode, tagName);
+        let existingFormat = this.findParentWithTag(currentNode, tagName);
+
+        // If no direct parent found, check if selection contains the tag
+        if (!existingFormat && !range.collapsed) {
+            // Check if selection contains or is contained by the tag
+            let node = currentNode;
+            while (node && node.nodeType === Node.TEXT_NODE) {
+                node = node.parentNode as Node;
+            }
+            if (node && node.nodeName.toLowerCase() === tagName.toLowerCase()) {
+                existingFormat = node as HTMLElement;
+            }
+        }
 
         if (existingFormat) {
             // Remove formatting
             const parent = existingFormat.parentNode;
             if (!parent) return;
 
-            const fragment = document.createDocumentFragment();
-            while (existingFormat.firstChild) {
-                fragment.appendChild(existingFormat.firstChild);
+            // If the selection is inside the formatted element
+            if (range.commonAncestorContainer === existingFormat || 
+                existingFormat.contains(range.commonAncestorContainer)) {
+                const fragment = document.createDocumentFragment();
+                while (existingFormat.firstChild) {
+                    fragment.appendChild(existingFormat.firstChild);
+                }
+                parent.replaceChild(fragment, existingFormat);
             }
-            parent.replaceChild(fragment, existingFormat);
         } else {
             // Apply formatting
             const element = document.createElement(tagName);
@@ -146,13 +173,24 @@ class RichEditor {
                     selection.removeAllRanges();
                     selection.addRange(newRange);
                 } else {
-                    range.surroundContents(element);
+                    // Check if selection already contains the same tag
+                    const containsSameTag = Array.from(range.cloneContents().childNodes)
+                        .some(node => node.nodeName.toLowerCase() === tagName.toLowerCase());
+                    
+                    if (!containsSameTag) {
+                        range.surroundContents(element);
+                    }
                 }
             } catch (e) {
                 // Handle complex selections
                 const fragment = range.extractContents();
-                element.appendChild(fragment);
-                range.insertNode(element);
+                // Check for existing formatting in the fragment
+                if (!this.hasTagInFragment(fragment, tagName)) {
+                    element.appendChild(fragment);
+                    range.insertNode(element);
+                } else {
+                    range.insertNode(fragment);
+                }
             }
         }
 
@@ -160,6 +198,27 @@ class RichEditor {
         this.updateContent(this.editorElement.innerHTML);
     }
 
+    /**
+     * Checks if a DocumentFragment contains a specific HTML tag.
+     * This is used to prevent duplicate wrapping of elements with the same formatting.
+     * 
+     * @param {DocumentFragment} fragment - The document fragment to check
+     * @param {string} tagName - The HTML tag name to search for
+     * @returns {boolean} True if the fragment contains the specified tag, false otherwise
+     * 
+     * @private
+     * @example
+     * const fragment = document.createDocumentFragment();
+     * // ... add content to fragment
+     * const hasBoldTag = this.hasTagInFragment(fragment, 'b');
+     */
+    private hasTagInFragment(fragment: DocumentFragment, tagName: string): boolean {
+        const tempDiv = document.createElement('div');
+        tempDiv.appendChild(fragment.cloneNode(true));
+        return tempDiv.getElementsByTagName(tagName).length > 0;
+    }
+
+    
     // Helper method to find parent element with specific tag
     /**
      * Finds the nearest parent element with the specified tag name
@@ -286,7 +345,7 @@ class RichEditor {
             ];
             this.state.historyIndex = this.state.history.length - 1;
             this.state.content = newContent;
-            this.onChange?.(newContent);
+            this.setContent?.(newContent);
         }
     }
 
@@ -295,7 +354,7 @@ class RichEditor {
             this.state.historyIndex--;
             this.editorElement.innerHTML = this.state.history[this.state.historyIndex];
             this.state.content = this.state.history[this.state.historyIndex];
-            this.onChange?.(this.state.content);
+            this.setContent?.(this.state.content);
         }
     }
 
@@ -304,8 +363,13 @@ class RichEditor {
             this.state.historyIndex++;
             this.editorElement.innerHTML = this.state.history[this.state.historyIndex];
             this.state.content = this.state.history[this.state.historyIndex];
-            this.onChange?.(this.state.content);
+            this.setContent?.(this.state.content);
         }
+    }
+
+    public clearHistory(): void {
+        this.state.history = [this.state.content];
+        this.state.historyIndex = 0;
     }
 
     private readonly allowedTags = [
@@ -397,7 +461,7 @@ class RichEditor {
 // React component wrapper
 interface EditorProps {
     content: string;
-    onChange: (content: string) => void;
+    setContent: (content: string) => void;
     bindings?: Record<string, any>;
     templates?: Template[];
     debug?: boolean;
@@ -405,7 +469,7 @@ interface EditorProps {
 
 export const ModernEditorComponent: React.FC<EditorProps> = ({
     content,
-    onChange,
+    setContent,
     bindings,
     templates,
     debug
@@ -418,20 +482,26 @@ export const ModernEditorComponent: React.FC<EditorProps> = ({
             editorInstanceRef.current = new RichEditor(editorRef.current, content, {
                 bindings,
                 templates,
-                onChange
+                setContent
             });
         }
     }, []);
 
+    function onTemplate (template: Template) {
+        if (editorInstanceRef.current?.editorElement) {
+            editorInstanceRef.current.editorElement.innerHTML = template.content;
+            editorInstanceRef.current.normalizeContent();
+            setContent(template.content);
+        }
+    }
     return (
         <div className="modern-editor-container">
             <Toolbar
                 onFormat={(format) => editorInstanceRef.current?.toggleFormat(format)}
-                templates={templates || []} onTable={function (): void {
+                templates={templates || []}
+                onTable={function (): void {
                     throw new Error("Function not implemented.");
-                } } onTemplate={function (): void {
-                    throw new Error("Function not implemented.");
-                } }            />
+                } } onTemplate={onTemplate}            />
             <div ref={editorRef} />
             {debug && <DebugPanel selectionState={null} />}
         </div>
@@ -439,3 +509,4 @@ export const ModernEditorComponent: React.FC<EditorProps> = ({
 };
 
 export { type Template };
+

@@ -114,7 +114,7 @@ function UpdatedExample() {
         <h3>Editor</h3>
           <ModernEditorComponent
             content={content}
-            onChange={setContent}
+            setContent={setContent}
             templates={templates}
             bindings={bindings}
             debug={true}
