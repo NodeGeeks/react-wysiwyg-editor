@@ -1,0 +1,22 @@
+.wysiwyg-toolbar button.active {
+  background-color: #e6e6e6;
+  border: 1px solid #ccc;
+  position: relative;
+}
+
+.wysiwyg-toolbar button {
+  border: 1px solid transparent;
+  padding: 4px 8px;
+  margin: 0 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wysiwyg-toolbar button:hover {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+}

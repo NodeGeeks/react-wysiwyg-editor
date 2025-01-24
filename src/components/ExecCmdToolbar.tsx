@@ -1,4 +1,6 @@
 import React from 'react';
+import { FormatState } from '../hooks/useFormatState';
+import '../styles/ExecCmdToolbar.css';
 import { TableStyles } from '../types/TableStyles';
 import { Template } from '../WysiwygEditor';
 import { TablePopover } from './TablePopover';
@@ -28,6 +30,7 @@ interface ToolbarProps {
   tablePopoverRef: React.RefObject<HTMLDivElement>;
   templates: Template[];
   onSelectTemplate: (template: Template) => void;
+  formatState: FormatState
 }
 const toolbarIcons = {
   bold: <svg  xmlns="http://www.w3.org/2000/svg"  width="16" height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth="2"  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-bold"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 5h6a3.5 3.5 0 0 1 0 7h-6z" /><path d="M13 12h1a3.5 3.5 0 0 1 0 7h-7v-7" /></svg>,
@@ -73,16 +76,17 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   setShowTablePopover,
   tablePopoverRef,
   templates,
-  onSelectTemplate
+  onSelectTemplate,
+  formatState,
 }) => {
   const [highlightedTextColor, setHighlightedTextColor] = React.useState('black');
   const [showTemplateSelector, setShowTemplateSelector] = React.useState(false);
   return (
     <div className="wysiwyg-toolbar">
       <div className="toolbar-group">
-        <button onClick={onBold} title="Bold">{toolbarIcons.bold}</button>
-        <button onClick={onItalic} title="Italic">{toolbarIcons.italic}</button>
-        <button onClick={onUnderline} title="Underline">{toolbarIcons.underline}</button>
+        <button onClick={onBold} title="Bold" className={formatState.isBold ? 'active' : ''}>{toolbarIcons.bold}</button>
+        <button onClick={onItalic} title="Italic" className={formatState.isItalic ? 'active' : ''}>{toolbarIcons.italic}</button>
+        <button onClick={onUnderline} title="Underline" className={formatState.isUnderline ? 'active' : ''}>{toolbarIcons.underline}</button>
       </div>
       
       <div className="toolbar-group">
@@ -104,14 +108,14 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       </div>
       
       <div className="toolbar-group">
-        <button onClick={onAlignLeft} title="Align Left">{toolbarIcons.alignLeft}</button>
-        <button onClick={onAlignCenter} title="Align Center">{toolbarIcons.alignCenter}</button>
-        <button onClick={onAlignRight} title="Align Right">{toolbarIcons.alignRight}</button>
+        <button onClick={onAlignLeft} title="Align Left" className={formatState.isAlignLeft ? 'active' : ''}>{toolbarIcons.alignLeft}</button>
+        <button onClick={onAlignCenter} title="Align Center" className={formatState.isAlignCenter ? 'active' : ''}>{toolbarIcons.alignCenter}</button>
+        <button onClick={onAlignRight} title="Align Right" className={formatState.isAlignRight ? 'active' : ''}>{toolbarIcons.alignRight}</button>
       </div>
       
       <div className="toolbar-group">
-        <button onClick={onBulletList} title="Bullet List">{toolbarIcons.unorderedList}</button>
-        <button onClick={onOrderedList} title="Numbered List">{toolbarIcons.orderedList}</button>
+        <button onClick={onBulletList} title="Bullet List" className={formatState.isBulletList ? 'active' : ''}>{toolbarIcons.unorderedList}</button>
+        <button onClick={onOrderedList} title="Numbered List" className={formatState.isOrderedList ? 'active' : ''}>{toolbarIcons.orderedList}</button>
         <button onClick={onIndent} title="Increase Indent">{toolbarIcons.indentIncrease}</button>
         <button onClick={onOutdent} title="Decrease Indent">{toolbarIcons.indentDescrease}</button>
       </div>

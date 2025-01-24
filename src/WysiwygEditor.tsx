@@ -2,6 +2,7 @@
 import React from 'react';
 import { DebugPanel } from './components/DebugPanel';
 import { Toolbar } from './components/ExecCmdToolbar';
+import { useFormatState } from './hooks/useFormatState';
 import "./styles.css";
 import { TableStyles } from './types/TableStyles';
 
@@ -44,6 +45,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   const [historyIndex, setHistoryIndex] = React.useState(0);
   const [selectionState, setSelectionState] = React.useState<SelectionState | null>(null);
   const editorRef = React.useRef<HTMLDivElement>(null);
+  const formatState = useFormatState(editorRef);
   const [storedSelection, setStoredSelection] = React.useState<Range | null>(null);
   const [showTablePopover, setShowTablePopover] = React.useState(false);
   const tablePopoverRef = React.useRef<HTMLDivElement>(null);
@@ -260,7 +262,12 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     const selectionState = getCaretPosition();
     
     try {
-      document.execCommand(command, false, value.toString());
+      // Check if format is already applied and toggle it
+      if (document.queryCommandState(command)) {
+        document.execCommand(command, false, '');
+      } else {
+        document.execCommand(command, false, value.toString());
+      }
       const newContent = editorRef.current.innerHTML;
       setContent(newContent);
       saveToHistory(newContent);
@@ -474,6 +481,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
         tablePopoverRef={tablePopoverRef}
         templates={templates}
         onSelectTemplate={handleTemplate}
+        formatState={formatState}
       />
       <div
         ref={editorRef}

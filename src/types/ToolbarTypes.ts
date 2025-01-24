@@ -5,6 +5,20 @@ export interface TableStyles {
   cellPadding: string;
 }
 
+interface FormatState {
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
+  isAlignLeft: boolean;
+  isAlignCenter: boolean;
+  isAlignRight: boolean;
+  isBulletList: boolean;
+  isOrderedList: boolean;
+  currentFontSize: string;
+  currentFontFamily: string;
+  currentColor: string;
+}
+
 export interface ToolbarProps {
   onFormat: (format: string, attributes?: Record<string, string>) => void;
   onTable: (rows: number, cols: number, styles: TableStyles) => void;
