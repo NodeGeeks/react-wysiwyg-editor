@@ -3,6 +3,18 @@ import { ModernEditorComponent } from '../../../src/ModernWysiwygEditor';
 
 const DomEditor: React.FC = () => {
   const [content, setContent] = React.useState('');
+
+  const handleBindingChange = (path: string[], value: string) => {
+    setBindings(prev => {
+      const newBindings = { ...prev };
+      let current = newBindings;
+      for (let i = 0; i < path.length - 1; i++) {
+        current = current[path[i]];
+      }
+      current[path[path.length - 1]] = value;
+      return newBindings;
+    });
+  };
   
   // Example templates and bindings from updated-example.tsx
   const templates = [
@@ -20,7 +32,7 @@ const DomEditor: React.FC = () => {
     }
   ];
 
-  const bindings = {
+  const [bindings, setBindings] = React.useState({
     user: {
       firstName: 'John',
       email: 'john@example.com',
@@ -29,11 +41,38 @@ const DomEditor: React.FC = () => {
     company: {
       name: 'TechCorp'
     }
-  };
+  });
 
   return (
     <div>
       <h1>DOM-based WYSIWYG Editor Example</h1>
+      {/* Binding Inputs */}
+      <div style={{ marginBottom: '20px' }}>
+        <h3>Update Template Variables</h3>
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+          <input
+            placeholder="First Name"
+            value={bindings.user.firstName}
+            onChange={(e) => handleBindingChange(['user', 'firstName'], e.target.value)}
+          />
+          <input
+            placeholder="Email"
+            value={bindings.user.email}
+            onChange={(e) => handleBindingChange(['user', 'email'], e.target.value)}
+          />
+          <input
+            placeholder="Role"
+            value={bindings.user.role}
+            onChange={(e) => handleBindingChange(['user', 'role'], e.target.value)}
+          />
+          <input
+            placeholder="Company Name"
+            value={bindings.company.name}
+            onChange={(e) => handleBindingChange(['company', 'name'], e.target.value)}
+          />
+        </div>
+      </div>
+
       <ModernEditorComponent
         content={content}
         setContent={setContent}
