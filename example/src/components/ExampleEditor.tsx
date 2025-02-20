@@ -7,7 +7,7 @@ const ExampleEditor: React.FC = () => {
   const handleBindingChange = (path: string[], value: string) => {
     setBindings(prev => {
       const newBindings = { ...prev };
-      let current = newBindings;
+        let current: any = newBindings;
       for (let i = 0; i < path.length - 1; i++) {
         current = current[path[i]];
       }
