@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FormatState } from '../hooks/useFormatState';
 import '../styles/ExecCmdToolbar.css';
 import { TableStyles } from '../types/TableStyles';
@@ -81,6 +81,24 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 }) => {
   const [highlightedTextColor, setHighlightedTextColor] = React.useState('black');
   const [showTemplateSelector, setShowTemplateSelector] = React.useState(false);
+  const templateSelectorRef = React.useRef<HTMLDivElement>(null);
+  
+  // Close template selector when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (templateSelectorRef.current && !templateSelectorRef.current.contains(event.target as Node)) {
+        setShowTemplateSelector(false);
+      }
+    };
+
+    if (showTemplateSelector) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showTemplateSelector]);
   return (
     <div className="wysiwyg-toolbar">
       <div className="toolbar-group">
@@ -183,7 +201,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       </div>
 
       <div className="toolbar-group">
-        <div className="template-selector">
+        <div className="template-selector" ref={templateSelectorRef}>
           <button
             onClick={() => setShowTemplateSelector(!showTemplateSelector)}
             title="Template"
