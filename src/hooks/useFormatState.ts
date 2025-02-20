@@ -56,7 +56,7 @@ export const useFormatState = (editorRef: React.RefObject<HTMLDivElement>): Form
       const hasSelection = !selection.isCollapsed;
       
       // If we have selected text, check the common formatting
-      const isFormatActiveForSelection = (command: string): boolean => {
+      const isFormatActiveForSelection = (command: string): string | boolean => {
         if (!hasSelection) {
           // If no selection, check the current position
           return elementToCheck ? isFormatActive(command) : false;
@@ -89,14 +89,35 @@ export const useFormatState = (editorRef: React.RefObject<HTMLDivElement>): Form
           return isFormatActive(command);
         }
         
-        // Check if any of the selected nodes have the format
-        return selectedNodes.some(() => isFormatActive(command));
+        // Check formatting across all selected nodes
+        let hasFormatted = false;
+        let hasUnformatted = false;
+        
+        selectedNodes.forEach((node) => {
+          const selRange = document.createRange();
+          selRange.selectNodeContents(node);
+          if (selRange.intersectsNode(node)) {
+            if (isFormatActive(command)) {
+              hasFormatted = true;
+            } else {
+              hasUnformatted = true;
+            }
+          }
+        });
+        
+        // If mixed formatting, return special state
+        if (hasFormatted && hasUnformatted) {
+          return "-";
+        }
+        
+        // Return true only if all selected content has the format
+        return hasFormatted && !hasUnformatted;
       };
-
+      
       setFormatState({
-        isBold: isFormatActiveForSelection('bold'),
-        isItalic: isFormatActiveForSelection('italic'),
-        isUnderline: isFormatActiveForSelection('underline'),
+        isBold: isFormatActiveForSelection('bold') === '-' ? false : !!isFormatActiveForSelection('bold'),
+        isItalic: isFormatActiveForSelection('italic') === '-' ? false : !!isFormatActiveForSelection('italic'),
+        isUnderline: isFormatActiveForSelection('underline') === '-' ? false : !!isFormatActiveForSelection('underline'),
         isAlignLeft: getStyle(elementToCheck, 'textAlign') === 'left',
         isAlignCenter: getStyle(elementToCheck, 'textAlign') === 'center',
         isAlignRight: getStyle(elementToCheck, 'textAlign') === 'right',
