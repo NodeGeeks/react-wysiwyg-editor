@@ -1,4 +1,4 @@
 export interface TableStyles {
-  borderColor: string;
-  cellPadding: string;
+    borderColor: string;
+    cellPadding: string;
 }

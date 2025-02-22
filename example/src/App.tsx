@@ -1,7 +1,7 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import ExampleEditor from './components/ExampleEditor';
-import DomEditor from './components/DomEditor';
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import './App.css';
+import DomEditor from './components/DomEditor';
+import ExampleEditor from './components/ExampleEditor';
 
 function App() {
   return (

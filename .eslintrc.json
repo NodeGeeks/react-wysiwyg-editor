@@ -28,5 +28,8 @@
       // JSX specific indentation
       "react/jsx-indent": ["error", 4],
       "react/jsx-indent-props": ["error", 4]
+  },
+  "globals": {
+    "React": "readonly"
   }
 }

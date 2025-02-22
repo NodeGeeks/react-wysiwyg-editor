@@ -98,7 +98,7 @@ class RichEditor {
                     } else {
                         this.undo();
                     }
-                break;
+                    break;
             }
         }
     }
