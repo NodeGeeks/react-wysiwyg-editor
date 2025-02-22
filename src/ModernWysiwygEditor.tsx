@@ -114,10 +114,10 @@ class RichEditor {
      * 
      * @example
      * // To toggle bold formatting
-     * toggleFormat('b');
+     * toggleFormat("b");
      * 
      * // To toggle italic formatting
-     * toggleFormat('i');
+     * toggleFormat("i");
      */
     public toggleFormat(tagName: string): void {
         const selection = window.getSelection();
@@ -210,10 +210,10 @@ class RichEditor {
      * @example
      * const fragment = document.createDocumentFragment();
      * // ... add content to fragment
-     * const hasBoldTag = this.hasTagInFragment(fragment, 'b');
+     * const hasBoldTag = this.hasTagInFragment(fragment, "b");
      */
     private hasTagInFragment(fragment: DocumentFragment, tagName: string): boolean {
-        const tempDiv = document.createElement('div');
+        const tempDiv = document.createElement("div");
         tempDiv.appendChild(fragment.cloneNode(true));
         return tempDiv.getElementsByTagName(tagName).length > 0;
     }

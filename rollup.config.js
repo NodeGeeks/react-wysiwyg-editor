@@ -1,22 +1,22 @@
-import typescript from '@rollup/plugin-typescript';
-import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
-import external from 'rollup-plugin-peer-deps-external';
-import postcss from 'rollup-plugin-postcss';
+import typescript from "@rollup/plugin-typescript";
+import commonjs from "@rollup/plugin-commonjs";
+import resolve from "@rollup/plugin-node-resolve";
+import external from "rollup-plugin-peer-deps-external";
+import postcss from "rollup-plugin-postcss";
 
-const external_deps = ['react', 'react-dom'];
+const external_deps = ["react", "react-dom"];
 
 // CommonJS build configuration
 const cjs_config = {
   input: 'src/index.ts',
   output: {
-    file: 'dist/index.js',
-    format: 'cjs',
+    file: "dist/index.js",
+    format: "cjs",
     sourcemap: true,
-    exports: 'named',
+    exports: "named",
     globals: {
-      react: 'React',
-      'react-dom': 'ReactDOM'
+      react: "React",
+      "react-dom": "ReactDOM"
     }
   },
   external: external_deps,
@@ -24,10 +24,10 @@ const cjs_config = {
     external(),
     postcss({
       modules: true,
-      extract: 'styles.module.css'
+      extract: "styles.module.css"
     }),
     resolve({
-      extensions: ['.js', '.jsx', '.ts', '.tsx']
+      extensions: [".js", ".jsx", ".ts", ".tsx"]
     }),
     commonjs({
       transformMixedEsModules: true,
@@ -45,10 +45,10 @@ const cjs_config = {
 const esm_config = {
   input: 'src/index.ts',
   output: {
-    file: 'dist/index.esm.js',
-    format: 'esm',
+    file: "dist/index.esm.js",
+    format: "esm",
     sourcemap: true,
-    exports: 'named'
+    exports: "named"
   },
   external: external_deps,
   plugins: [
@@ -58,8 +58,8 @@ const esm_config = {
       extract: false
     }),
     resolve({
-      extensions: ['.js', '.jsx', '.ts', '.tsx'],
-      mainFields: ['module', 'jsnext:main', 'main'],
+      extensions: [".js", ".jsx", ".ts", ".tsx"],
+      mainFields: ["module", "jsnext:main", "main"],
       browser: true,
       preferBuiltins: false
     }),
@@ -78,12 +78,12 @@ const esm_config = {
 
 // Update ESM typescript config to ensure pure ES modules
 esm_config.plugins = esm_config.plugins.map(plugin => {
-  if (plugin?.name === 'typescript') {
+  if (plugin?.name === "typescript") {
     return typescript({
       tsconfig: './tsconfig.json',
-      exclude: ['example/**/*'],
-      module: 'esnext',
-      target: 'es2015'
+      exclude: ["example/**/*"],
+      module: "esnext",
+      target: "es2015"
     });
   }
   return plugin;

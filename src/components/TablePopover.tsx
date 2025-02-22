@@ -1,6 +1,6 @@
-import React, { forwardRef, useState } from 'react';
-import { TableStyles } from '../types/TableStyles';
-import './TablePopover.css';
+import React, { forwardRef, useState } from "react";
+import { TableStyles } from "../types/TableStyles";
+import "./TablePopover.css";
 
 interface TablePopoverProps {
   onSelect: (rows: number, columns: number, styles: TableStyles) => void;
@@ -9,8 +9,8 @@ interface TablePopoverProps {
 const TablePopover = forwardRef<HTMLDivElement, TablePopoverProps>(({ onSelect }, ref) => {
   const [rows, setRows] = useState(0);
   const [columns, setColumns] = useState(0);
-  const [borderColor, setBorderColor] = useState('#000000');
-  const [cellPadding, setCellPadding] = useState('5px');
+  const [borderColor, setBorderColor] = useState("#000000");
+  const [cellPadding, setCellPadding] = useState("5px");
 
   const handleMouseOver = (row: number, column: number) => {
     setRows(row);
@@ -29,7 +29,7 @@ const TablePopover = forwardRef<HTMLDivElement, TablePopoverProps>(({ onSelect }
             {[...Array(5)].map((_, colIndex) => (
               <div
                 key={colIndex}
-                className={`table-popover-cell ${rowIndex <= rows && colIndex <= columns ? 'highlighted' : ''}`}
+                className={`table-popover-cell ${rowIndex <= rows && colIndex <= columns ? "highlighted" : ""}`}
                 onMouseOver={() => handleMouseOver(rowIndex, colIndex)}
                 onClick={handleClick}
                 aria-label={`${rowIndex + 1}x${colIndex + 1}`}
@@ -52,7 +52,7 @@ const TablePopover = forwardRef<HTMLDivElement, TablePopoverProps>(({ onSelect }
   );
 });
 
-TablePopover.displayName = 'TablePopover';
+TablePopover.displayName = "TablePopover";
 
 export { TablePopover };
 

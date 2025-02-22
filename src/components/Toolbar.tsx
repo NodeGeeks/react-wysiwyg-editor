@@ -24,30 +24,30 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   const [tableCols, setTableCols] = useState(2);
 
   const defaultTableStyles: TableStyles = {
-    borderColor: '#ccc',
-    cellPadding: '8px',
+    borderColor: "#ccc",
+    cellPadding: "8px",
   };
 
   return (
     <div className="wysiwyg-toolbar">
       {/* Text formatting */}
       <div className="toolbar-group">
-        <button onClick={() => onFormat('strong')} title="Bold">{icons.bold}</button>
-        <button onClick={() => onFormat('em')} title="Italic">{icons.italic}</button>
-        <button onClick={() => onFormat('u')} title="Underline">{icons.underline}</button>
+        <button onClick={() => onFormat("strong")} title="Bold">{icons.bold}</button>
+        <button onClick={() => onFormat("em")} title="Italic">{icons.italic}</button>
+        <button onClick={() => onFormat("u")} title="Underline">{icons.underline}</button>
       </div>
 
       {/* Alignment */}
       <div className="toolbar-group">
-        <button onClick={() => onFormat('div', { style: 'text-align: left' })} title="Align Left">{icons.alignLeft}</button>
-        <button onClick={() => onFormat('div', { style: 'text-align: center' })} title="Align Center">{icons.alignCenter}</button>
-        <button onClick={() => onFormat('div', { style: 'text-align: right' })} title="Align Right">{icons.alignRight}</button>
+        <button onClick={() => onFormat("div", { style: "text-align: left" })} title="Align Left">{icons.alignLeft}</button>
+        <button onClick={() => onFormat("div", { style: "text-align: center" })} title="Align Center">{icons.alignCenter}</button>
+        <button onClick={() => onFormat("div", { style: "text-align: right" })} title="Align Right">{icons.alignRight}</button>
       </div>
 
       {/* Lists */}
       <div className="toolbar-group">
-        <button onClick={() => onFormat('ul')} title="Bullet List">{icons.bulletList}</button>
-        <button onClick={() => onFormat('ol')} title="Number List">{icons.numberList}</button>
+        <button onClick={() => onFormat("ul")} title="Bullet List">{icons.bulletList}</button>
+        <button onClick={() => onFormat("ol")} title="Number List">{icons.numberList}</button>
       </div>
 
       {/* Table insertion */}

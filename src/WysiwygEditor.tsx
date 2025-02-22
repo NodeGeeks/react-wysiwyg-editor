@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react';
-import { DebugPanel } from './components/DebugPanel';
-import { Toolbar } from './components/ExecCmdToolbar';
-import { useFormatState } from './hooks/useFormatState';
+import React from "react";
+import { DebugPanel } from "./components/DebugPanel";
+import { Toolbar } from "./components/ExecCmdToolbar";
+import { useFormatState } from "./hooks/useFormatState";
 import "./styles.css";
-import { TableStyles } from './types/TableStyles';
+import { TableStyles } from "./types/TableStyles";
 
 export interface Template {
   name: string;
@@ -33,7 +33,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   debug = false
 }) => {
   const processBindings = (text: string) => {
-    if (!text) return '';
+    if (!text) return "";
     return text.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
       const trimmedKey = key.trim();
       const value: any = trimmedKey.split('.').reduce((acc: any, part: string) => acc && acc[part], bindings);
@@ -62,9 +62,9 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   };
 
   React.useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -86,7 +86,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     const countPosition = (node: Node): number => {
       if (node.nodeType === Node.TEXT_NODE) {
         return node.textContent?.length || 0;
-      } else if (node.nodeName === 'BR') {
+      } else if (node.nodeName === "BR") {
         return 1; // Count each <br> as one position
       }
       let length = 0;
@@ -210,9 +210,9 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
           }
       };
 
-      document.addEventListener('selectionchange', handleSelectionChange);
+      document.addEventListener("selectionchange", handleSelectionChange);
       return () => {
-          document.removeEventListener('selectionchange', handleSelectionChange);
+          document.removeEventListener("selectionchange", handleSelectionChange);
       };
     }
   }, []);
@@ -230,9 +230,9 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   // Handle binding updates
   React.useEffect(() => {
     if (!editorRef.current) return;
-    const spans = editorRef.current.querySelectorAll('.template-binding');
+    const spans = editorRef.current.querySelectorAll(".template-binding");
     spans.forEach((span) => {
-      const binding = span.getAttribute('data-binding');
+      const binding = span.getAttribute("data-binding");
       if (binding) {
         const value = binding.split('.').reduce((acc, part) => acc && acc[part], bindings);
         span.textContent = value !== undefined ? String(value) : `{{${binding}}}`;
@@ -264,7 +264,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     try {
       // Check if format is already applied and toggle it
       if (document.queryCommandState(command)) {
-        document.execCommand(command, false, '');
+        document.execCommand(command, false, "");
       } else {
         document.execCommand(command, false, value.toString());
       }
@@ -284,38 +284,38 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   };
 
   const handleBold = () => {
-    execCommand('bold');
+    execCommand("bold");
   };
 
   const handleItalic = () => {
-    execCommand('italic');
+    execCommand("italic");
   };
 
   const handleUnderline = () => {
-    execCommand('underline');
+    execCommand("underline");
   };
 
   const handleFontSize = (size: string) => {
     const sizeNum = parseInt(size);
     const fontSizeValue = Math.min(7, Math.max(1, Math.floor(sizeNum / 4)));
-    execCommand('fontSize', fontSizeValue);
+    execCommand("fontSize", fontSizeValue);
   };
 
   const handleColor = (color: string) => {
-    execCommand('foreColor', color);
+    execCommand("foreColor", color);
   };
 
   const handleLink = () => {
-    const url = prompt('Enter URL:');
+    const url = prompt("Enter URL:");
     if (url) {
-      execCommand('createLink', url);
+      execCommand("createLink", url);
     }
   };
 
   const handleImage = () => {
-    const url = prompt('Enter image URL:');
+    const url = prompt("Enter image URL:");
     if (url) {
-      execCommand('insertImage', url);
+      execCommand("insertImage", url);
     }
   };
 
@@ -356,35 +356,35 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   };
 
   const handleAlignLeft = () => {
-    execCommand('justifyLeft');
+    execCommand("justifyLeft");
   };
 
   const handleAlignCenter = () => {
-    execCommand('justifyCenter');
+    execCommand("justifyCenter");
   };
 
   const handleAlignRight = () => {
-    execCommand('justifyRight');
+    execCommand("justifyRight");
   };
 
   const handleBulletList = () => {
-    execCommand('insertUnorderedList');
+    execCommand("insertUnorderedList");
   };
 
   const handleOrderedList = () => {
-    execCommand('insertOrderedList');
+    execCommand("insertOrderedList");
   };
 
   const handleIndent = () => {
-    execCommand('indent');
+    execCommand("indent");
   };
 
   const handleOutdent = () => {
-    execCommand('outdent');
+    execCommand("outdent");
   };
 
   const handleFontFamily = (font: string) => {
-    execCommand('fontName', font);
+    execCommand("fontName", font);
   };
   
   const handleTemplate = (template: Template) => {
@@ -414,15 +414,15 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
 
     let tableHTML = `<table style="border-color: ${styles.borderColor}; border-collapse: collapse;">`;
     for (let i = 0; i < rows; i++) {
-      tableHTML += '<tr>';
+      tableHTML += "<tr>";
       for (let j = 0; j < columns; j++) {
         tableHTML += `<td style="border: 1px solid ${styles.borderColor}; padding: ${styles.cellPadding};">&nbsp;</td>`;
       }
-      tableHTML += '</tr>';
+      tableHTML += "</tr>";
     }
-    tableHTML += '</table>';
+    tableHTML += "</table>";
 
-    const tempDiv = document.createElement('div');
+    const tempDiv = document.createElement("div");
     tempDiv.innerHTML = tableHTML;
     const fragment = document.createDocumentFragment();
     let node;
@@ -449,7 +449,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   };
 
   return (
-    <div className="wysiwyg-container" style={{ position: 'relative' }}>
+    <div className="wysiwyg-container" style={{ position: "relative" }}>
       <Toolbar
         onBold={handleBold}
         onItalic={handleItalic}

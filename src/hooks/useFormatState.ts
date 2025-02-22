@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export interface FormatState {
   isBold: boolean;
@@ -24,9 +24,9 @@ export const useFormatState = (editorRef: React.RefObject<HTMLDivElement>): Form
     isAlignRight: false,
     isBulletList: false,
     isOrderedList: false,
-    currentFontSize: '16px',
-    currentFontFamily: 'Arial',
-    currentColor: '#000000'
+    currentFontSize: "16px",
+    currentFontFamily: "Arial",
+    currentColor: "#000000"
   });
 
   useEffect(() => {
