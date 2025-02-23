@@ -79,26 +79,26 @@ class RichEditor {
     private handleKeyDown(event: KeyboardEvent): void {
         if (event.ctrlKey || event.metaKey) {
             switch (event.key.toLowerCase()) {
-                case "b":
-                    event.preventDefault();
-                    this.toggleFormat("strong");
-                    break;
-                case "i":
-                    event.preventDefault();
-                    this.toggleFormat("em");
-                    break;
-                case "u":
-                    event.preventDefault();
-                    this.toggleFormat("u");
-                    break;
-                case "z":
-                    event.preventDefault();
-                    if (event.shiftKey) {
-                        this.redo();
-                    } else {
-                        this.undo();
-                    }
-                    break;
+            case "b":
+                event.preventDefault();
+                this.toggleFormat("strong");
+                break;
+            case "i":
+                event.preventDefault();
+                this.toggleFormat("em");
+                break;
+            case "u":
+                event.preventDefault();
+                this.toggleFormat("u");
+                break;
+            case "z":
+                event.preventDefault();
+                if (event.shiftKey) {
+                    this.redo();
+                } else {
+                    this.undo();
+                }
+                break;
             }
         }
     }

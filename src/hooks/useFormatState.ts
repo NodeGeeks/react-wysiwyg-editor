@@ -57,14 +57,14 @@ export const useFormatState = (editorRef: React.RefObject<HTMLDivElement>): Form
                 if (node.nodeType === Node.ELEMENT_NODE) {
                     const element = node as HTMLElement;
                     switch (command) {
-                        case "bold":
-                            return element.style.fontWeight === "bold" || element.tagName === "B" || element.tagName === "STRONG";
-                        case "italic":
-                            return element.style.fontStyle === "italic" || element.tagName === "I" || element.tagName === "EM";
-                        case "underline":
-                            return element.style.textDecoration === "underline" || element.tagName === "U";
-                        default:
-                            return false;
+                    case "bold":
+                        return element.style.fontWeight === "bold" || element.tagName === "B" || element.tagName === "STRONG";
+                    case "italic":
+                        return element.style.fontStyle === "italic" || element.tagName === "I" || element.tagName === "EM";
+                    case "underline":
+                        return element.style.textDecoration === "underline" || element.tagName === "U";
+                    default:
+                        return false;
                     }
                 }
                 return false;
