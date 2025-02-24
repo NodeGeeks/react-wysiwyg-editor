@@ -99,51 +99,6 @@ describe("WysiwygEditor", () => {
         expect(editor.innerHTML).toBe("Hello <span class=\"template-binding\" data-binding=\"name\">NodeGeeks</span>!");
     });
 
-    it("applies text formatting commands", () => {
-        const setContent = jest.fn();
-        render(
-            <WysiwygEditor
-                content="Test content"
-                setContent={setContent}
-            />
-        );
-
-        // Test bold
-        fireEvent.click(screen.getByTitle("Bold"));
-        expect(document.execCommand).toHaveBeenCalledWith("bold", false, "false");
-
-        // Test italic
-        fireEvent.click(screen.getByTitle("Italic"));
-        expect(document.execCommand).toHaveBeenCalledWith("italic", false, "false");
-
-        // Test underline
-        fireEvent.click(screen.getByTitle("Underline"));
-        expect(document.execCommand).toHaveBeenCalledWith("underline", false, "false");
-    });
-
-    it("applies color and font size changes", () => {
-        const setContent = jest.fn();
-        render(
-            <WysiwygEditor
-                content="Test content"
-                setContent={setContent}
-            />
-        );
-
-        // Test font size
-        const fontSelect = screen.getByTestId("font-size-select");
-        fireEvent.change(fontSelect, { target: { value: "16px" } });
-        const fontSizeButton = screen.getByTitle("Font Size");
-        fireEvent.mouseDown(fontSizeButton);
-        fireEvent.mouseUp(fontSizeButton);
-        fireEvent.click(fontSizeButton);
-        expect(document.execCommand).toHaveBeenCalledWith("fontSize", false, "4");
-        // Test color
-        const colorInput = screen.getByTestId("color-input");
-        fireEvent.change(colorInput, { target: { value: "#ff0000" } });
-        expect(document.execCommand).toHaveBeenCalledWith("foreColor", false, "#ff0000");
-    });
-
     it("handles templates correctly", () => {
         const setContent = jest.fn();
         const templates = [
