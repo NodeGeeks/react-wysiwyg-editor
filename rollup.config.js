@@ -1,6 +1,7 @@
-import typescript from "@rollup/plugin-typescript";
+/* eslint-disable indent */
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
+import typescript from "@rollup/plugin-typescript";
 import external from "rollup-plugin-peer-deps-external";
 import postcss from "rollup-plugin-postcss";
 
@@ -8,7 +9,7 @@ const external_deps = ["react", "react-dom"];
 
 // CommonJS build configuration
 const cjs_config = {
-  input: 'src/index.ts',
+  input: "src/index.ts",
   output: {
     file: "dist/index.js",
     format: "cjs",
@@ -32,18 +33,18 @@ const cjs_config = {
     commonjs({
       transformMixedEsModules: true,
       include: [/node_modules/, /src/],
-      requireReturnsDefault: 'auto'
+      requireReturnsDefault: "auto"
     }),
     typescript({
-      tsconfig: './tsconfig.json',
-      exclude: ['example/**/*']
+      tsconfig: "./tsconfig.json",
+      exclude: ["example/**/*"]
     })
   ]
 };
 
 // ES Module build configuration
 const esm_config = {
-  input: 'src/index.ts',
+  input: "src/index.ts",
   output: {
     file: "dist/index.esm.js",
     format: "esm",
@@ -66,12 +67,12 @@ const esm_config = {
     commonjs({
       transformMixedEsModules: true,
       include: [/node_modules/],
-      requireReturnsDefault: 'namespace',
+      requireReturnsDefault: "namespace",
       esmExternals: true
     }),
     typescript({
-      tsconfig: './tsconfig.json',
-      exclude: ['example/**/*']
+      tsconfig: "./tsconfig.json",
+      exclude: ["example/**/*"]
     })
   ]
 };
@@ -80,7 +81,7 @@ const esm_config = {
 esm_config.plugins = esm_config.plugins.map(plugin => {
   if (plugin?.name === "typescript") {
     return typescript({
-      tsconfig: './tsconfig.json',
+      tsconfig: "./tsconfig.json",
       exclude: ["example/**/*"],
       module: "esnext",
       target: "es2015"

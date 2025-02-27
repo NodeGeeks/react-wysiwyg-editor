@@ -248,7 +248,7 @@ class RichEditor {
      */
     private handlePaste(event: ClipboardEvent): void {
         event.preventDefault();
-
+        console.log("Paste event triggered", event.clipboardData);
         const clipboardData = event.clipboardData;
         if (!clipboardData) return;
 
