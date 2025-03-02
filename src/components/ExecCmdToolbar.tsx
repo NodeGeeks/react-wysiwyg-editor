@@ -175,8 +175,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             </div>
       
             <div className="toolbar-group">
-                <button onClick={onUndo} title="Undo">{toolbarIcons.undo}</button>
-                <button onClick={onRedo} title="Redo">{toolbarIcons.redo}</button>
+                <button onClick={onUndo} title="Undo" disabled={!formatState.canUndo}>{toolbarIcons.undo}</button>
+                <button onClick={onRedo} title="Redo" disabled={!formatState.canRedo}>{toolbarIcons.redo}</button>
             </div>
 
             <div className="toolbar-group">
