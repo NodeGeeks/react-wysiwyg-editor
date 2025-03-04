@@ -12,15 +12,9 @@ export interface FormatState {
     currentFontSize: string;
     currentFontFamily: string;
     currentColor: string;
-    canUndo: boolean;
-    canRedo: boolean;
 }
 
-export const useFormatState = (
-    editorRef: React.RefObject<HTMLDivElement>, 
-    historyIndex = 0, 
-    historyLength = 1
-): FormatState => {
+export const useFormatState = (editorRef: React.RefObject<HTMLDivElement>): FormatState => {
     const [formatState, setFormatState] = useState<FormatState>({
         isBold: false,
         isItalic: false,
@@ -37,14 +31,14 @@ export const useFormatState = (
         canRedo: false
     });
 
-    useEffect(() => {
-        // Update undo/redo state based on history
-        setFormatState(prevState => ({
-            ...prevState,
-            canUndo: historyIndex > 0,
-            canRedo: historyIndex < historyLength - 1
-        }));
-    }, [historyIndex, historyLength]);
+    // useEffect(() => {
+    //     // Update undo/redo state based on history
+    //     setFormatState(prevState => ({
+    //         ...prevState,
+    //         canUndo: historyIndex > 0,
+    //         canRedo: historyIndex < historyLength - 1
+    //     }));
+    // }, [historyIndex, historyLength]);
 
     useEffect(() => {
         const checkFormatting = () => {
@@ -157,9 +151,7 @@ export const useFormatState = (
                 isOrderedList: !!elementToCheck.closest("ol"),
                 currentFontSize: getStyle(elementToCheck, "fontSize"),
                 currentFontFamily: getStyle(elementToCheck, "fontFamily").replace(/['"]/g, ""),
-                currentColor: getStyle(elementToCheck, "color"),
-                canRedo: historyIndex < historyLength - 1,
-                canUndo: historyIndex > 0
+                currentColor: getStyle(elementToCheck, "color")
             });
         };
 
