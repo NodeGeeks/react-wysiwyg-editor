@@ -26,19 +26,8 @@ export const useFormatState = (editorRef: React.RefObject<HTMLDivElement>): Form
         isOrderedList: false,
         currentFontSize: "16px",
         currentFontFamily: "Arial",
-        currentColor: "#000000",
-        canUndo: false,
-        canRedo: false
+        currentColor: "#000000"
     });
-
-    // useEffect(() => {
-    //     // Update undo/redo state based on history
-    //     setFormatState(prevState => ({
-    //         ...prevState,
-    //         canUndo: historyIndex > 0,
-    //         canRedo: historyIndex < historyLength - 1
-    //     }));
-    // }, [historyIndex, historyLength]);
 
     useEffect(() => {
         const checkFormatting = () => {
