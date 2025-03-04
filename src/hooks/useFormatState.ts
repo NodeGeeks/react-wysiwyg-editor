@@ -37,14 +37,14 @@ export const useFormatState = (
         canRedo: false
     });
 
-    // useEffect(() => {
-    //     // Update undo/redo state based on history
-    //     setFormatState(prevState => ({
-    //         ...prevState,
-    //         canUndo: historyIndex > 0,
-    //         canRedo: historyIndex < historyLength - 1
-    //     }));
-    // }, [historyIndex, historyLength]);
+    useEffect(() => {
+        // Update undo/redo state based on history
+        setFormatState(prevState => ({
+            ...prevState,
+            canUndo: historyIndex > 0,
+            canRedo: historyIndex < historyLength - 1
+        }));
+    }, [historyIndex, historyLength]);
 
     useEffect(() => {
         const checkFormatting = () => {
