@@ -1,7 +1,6 @@
 /* eslint-disable indent */
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
-import terser from "@rollup/plugin-terser";
 import typescript from "@rollup/plugin-typescript";
 import external from "rollup-plugin-peer-deps-external";
 import postcss from "rollup-plugin-postcss";
@@ -39,8 +38,7 @@ const cjs_config = {
     typescript({
       tsconfig: "./tsconfig.json",
       exclude: ["example/**/*"]
-    }),
-    terser()
+    })
   ]
 };
 
@@ -85,7 +83,7 @@ esm_config.plugins = esm_config.plugins.map(plugin => {
     return typescript({
       tsconfig: "./tsconfig.json",
       exclude: ["example/**/*"],
-      module: "nodenext",
+      module: "esnext",
       target: "es2015"
     });
   }
